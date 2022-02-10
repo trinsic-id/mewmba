@@ -1,0 +1,31 @@
+{
+  "name": "gathertown-desk-setup",
+  "version": "0.1.0",
+  "description": "Request a set of accessories for your desk - create an amazon wishlist as you add things to your desk",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "tsc -b && node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fundthmcalculus/gathertown-desk-setup.git"
+  },
+  "keywords": [],
+  "author": "fundthmcalculus",
+  "license": "Apache 2.0",
+  "bugs": {
+    "url": "https://github.com/fundthmcalculus/gathertown-desk-setup/issues"
+  },
+  "homepage": "https://github.com/fundthmcalculus/gathertown-desk-setup#readme",
+  "dependencies": {
+    "@gathertown/gather-game-client": "32.0.0",
+    "isomorphic-ws": "^4.0.1",
+    "pathfinding": "^0.4.18",
+    "ws": "^8.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.10",
+    "@types/pathfinding": "^0.0.5",
+    "typescript": "^4.5.4"
+  }
+}
