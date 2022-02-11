@@ -1,4 +1,7 @@
-# gathertown-desk-setup
+# Mewmba
+
+Mewmba is the trinsic metaverse cat on a roomba.
+
 ### Setup
 
 Create an `./api-key.ts` file with the following contents:
@@ -10,7 +13,7 @@ export const GATHER_MAP_ID = "YOUR MAP NAME HERE";
 
 ### Work log
 1. Supports (commented out) rickrolling someone, or the entire office
-2. Supports driving the cat on a roomba around to random location.
+2. Supports navigating to a random location on the same map.
 3. Refactor the rickrolling code to be more clear.
 4. Support having the cat chase random people around
 5. TODO - Support multiple people and multiple cats
