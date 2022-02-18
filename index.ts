@@ -8,7 +8,6 @@ import {GatherWrapper} from "./gatherwrapper";
 
 global.WebSocket = require("isomorphic-ws");
 
-const HELP_MESSAGE = "Enter /help for this list of commands:\n/rickroll <Name> to rickroll someone\n/verify <code> to verify your credential code sent to your email"
 // gather game client setup
 const game = new Game(() => Promise.resolve({apiKey: GATHER_API_KEY}));
 game.connect(GATHER_SPACE_ID);
@@ -73,59 +72,6 @@ function mewmbaSetUpDanceParty(mewmbaName: string, playerName: string) {
         mewmba.routeToPoint({x: 36, y: 10})
         myWrapper.createNeonLight(randomInt(36, 45), randomInt(10,20), RandomColor())
     })
-}
-
-game.subscribeToEvent("playerChats", (data, context) => {
-    if (data.playerChats.contents.toLowerCase()[0] === "/") {
-        let args = data.playerChats.contents.split(/(\s+)/).filter(arg => !arg.match(/(\s+)/))
-        console.log(args)
-        switch (args[0]) {
-            case "/rickroll":
-                if (args[1]) {
-
-                    for (const id in game.players) {
-                        if (game.players[id].name.toLowerCase().includes(args[1].toLowerCase())) {
-                            // console.log(id, game.players[id])
-                            myWrapper.rickroll(id);
-                        }
-                    }
-                }
-                else {
-                    console.log("Missing argument for the Roll of Rick. Must include a player name")
-                    game.chat(data.playerChats.senderId, [], GATHER_MAP_ID, HELP_MESSAGE)
-                }
-                break;
-            case "/verify":
-                console.log(args[1])
-                if (args[1]) {
-                    if (isBase64(args[1])) {
-                        console.log("verifying", args[1], "...")
-                        // TODO: Send the verification code to actually be verified
-                    }
-                    else {
-                        game.chat(data.playerChats.senderId, [], GATHER_MAP_ID, HELP_MESSAGE)
-                    }
-                }
-                else {
-                    game.chat(data.playerChats.senderId, [], GATHER_MAP_ID, HELP_MESSAGE)
-                }
-                break;
-            case "/help":
-                game.chat(data.playerChats.senderId, [], GATHER_MAP_ID, HELP_MESSAGE)
-                break;
-            default:
-                "Invalid Input"
-                break;
-        }
-    }
-})
-
-function isBase64(str: string) {
-    try {
-        return btoa(atob(str)) == str;
-    } catch (err) {
-        return false;
-    }
 }
 
 mewmbaSetUpDanceParty("phillis","phillis")
