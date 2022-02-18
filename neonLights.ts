@@ -1,3 +1,4 @@
+import {randomInt} from "crypto";
 
 export function CreateLight(x: number, y: number, colorName: string) {
     const lightId = "fQUHe3C1UWtUbqRu_SpNX"
@@ -20,6 +21,11 @@ export function CreateLight(x: number, y: number, colorName: string) {
         "_tags": [],
         "properties": {}
     };
+}
+
+export function RandomColor() {
+    const colors = ["red", "orange", "yellow","green","blue","indigo","violet","pink"]
+    return colors[randomInt(colors.length)]
 }
 
 function getLightImageByColor(colorName: string): { normal: string, highlighted: string } {

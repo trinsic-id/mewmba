@@ -7,6 +7,7 @@ import {CreateLight} from "./neonLights";
 type GatherObjectCallback = (obj: MapObject, key: number) => void;
 type OnStepCallback = () => number[][];
 type OnStopCallback = () => void;
+
 export class Mewmba {
     game: Game;
     selectedMewmba: MewmbaObject | undefined = undefined;
@@ -29,10 +30,6 @@ export class Mewmba {
         let mewmbas: MewmbaObject[] = []
         this.filterObjectsByName("mewmba", (obj, key) => mewmbas.push(new MewmbaObject(obj, key, obj._name!.toLowerCase())))
         return mewmbas;
-    }
-
-    getNeonLights() {
-        this.filterObjectsByName("Neon Light (Circle)", (obj, key) => console.log(obj))
     }
 
     createNeonLight(x: number, y: number, colorName: string) {
