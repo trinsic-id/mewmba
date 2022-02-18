@@ -1,6 +1,6 @@
 import {GATHER_API_KEY, GATHER_MAP_ID, GATHER_SPACE_ID} from "./api-key";
 import {Game, WireObject} from "@gathertown/gather-game-client";
-import {Roomba} from "./roomba";
+import {Mewmba} from "./mewmba";
 
 global.WebSocket = require("isomorphic-ws");
 
@@ -28,7 +28,7 @@ game.subscribeToEvent("mapSetObjects", (data, context) => {
 
 game.subscribeToEvent("playerChats", (data, context) => {
     console.log(data, context)
-})``
+})
 
 game.subscribeToEvent("playerInteracts", (data, context) => {
     console.log(data, context)
@@ -50,25 +50,21 @@ function setRickRollTrap(playerName: string) {
 
 function randomRoomba() {
     setTimeout(async () => {
-        const mewmba = new Roomba(game)
-        mewmba.routeRoomba(mewmba.getRandomPoint())
-        // Pick a random player
+        const mewmba = new Mewmba(game)
+        mewmba.selectMewmba(mewmba.listMewmbas()[0]);
+        mewmba.routeToPoint(mewmba.getRandomPoint())
     }, 3000)
 }
 // randomRoomba();
 
-function roombaChasePlayer(playerName: string) {
+function roombaChasePlayer(mewmbaName: string, playerName: string) {
     game.subscribeToEvent("playerJoins", (data, context) => {
         setTimeout(async () => {
-            const player = game.getPlayer(context.playerId!)
-            if (player.name.toLowerCase().includes(playerName.toLowerCase())) {
-                console.log("Jaws time")
-                // game.playSound("https://orangefreesounds.com/wp-content/uploads/2016/04/Jaws-theme-song.mp3", 0.3, context.playerId!)
-                const killerRoomba = new Roomba(game)
-                killerRoomba.routeRoomba({x: player.x, y: player.y})
-                // killerRoomba.routeRoomba({x: 43, y: 16})
-            }
-        }, 5000)
-    })
+            const mewmba = new Mewmba(game);
+            mewmba.selectMewmba(mewmba.getMewmbaByName(mewmbaName));
+            // game.playSound("https://orangefreesounds.com/wp-content/uploads/2016/04/Jaws-theme-song.mp3", 0.3, context.playerId!)
+            mewmba.routeToPoint(mewmba.getPersonPoint(playerName));
+        }, 1000);
+    });
 }
-roombaChasePlayer("phillis")
+roombaChasePlayer("phillis", "4113")
