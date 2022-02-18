@@ -1,10 +1,13 @@
 import {Game, MapObject, WireObject} from "@gathertown/gather-game-client";
 import {GATHER_MAP_ID} from "./api-key";
 import PF, {DiagonalMovement} from "pathfinding";
-import {randomInt, randomUUID} from "crypto";
+import {randomInt} from "crypto";
+import {CreateLight} from "./neonLights";
 
 type GatherObjectCallback = (obj: MapObject, key: number) => void;
 type OnStepCallback = () => number[][];
+type OnStopCallback = () => void;
+
 export class Mewmba {
     game: Game;
     selectedMewmba: MewmbaObject | undefined = undefined;
@@ -29,12 +32,8 @@ export class Mewmba {
         return mewmbas;
     }
 
-    getNeonLights() {
-        this.filterObjectsByName("Neon Light (Circle)", (obj, key) => console.log(obj))
-    }
-
-    createNeonLight(x: number, y: number) {
-        const newLight = createLight(x, y, "red");
+    createNeonLight(x: number, y: number, colorName: string) {
+        const newLight = CreateLight(x, y, colorName);
         this.game.engine.sendAction({
             $case: "mapAddObject",
             mapAddObject: {mapId: GATHER_MAP_ID, object: newLight }
@@ -145,10 +144,10 @@ export class Mewmba {
     }
     routeToPoint(target: Point) {
         const path = this.computeRoute(target);
-        this.animateMovement(path, undefined);
+        this.animateMovement(path, undefined, undefined);
     }
 
-    private animateMovement(path: number[][], onstepCallback: OnStepCallback | undefined) {
+    private animateMovement(path: number[][], onstepCallback: OnStepCallback | undefined, onStop: OnStopCallback | undefined) {
         // Trigger the animation to it
         let pathStep = 1;
         const stepTimer = setInterval(async () => {
@@ -163,6 +162,8 @@ export class Mewmba {
             if (pathStep == path.length) {
                 clearInterval(stepTimer)
                 console.log("Mewmba parked")
+                if (onStop)
+                    onStop();
             }
         }, 100);
     }
@@ -171,6 +172,10 @@ export class Mewmba {
         const path = this.computeRoute(this.getPersonPoint(name));
         this.animateMovement(path, () => {
             return this.computeRoute(this.getPersonPoint(name));
+        }, () => {
+            const point = this.getPersonPoint(name)
+            this.createNeonLight(point.x + randomInt(-1, 1), point.y + randomInt(-1, 1), "red")
+            this.rickroll("")
         });
     }
 
