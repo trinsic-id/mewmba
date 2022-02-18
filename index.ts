@@ -78,12 +78,13 @@ function mewmbaMoveToPlayer(mewmbaName: string, playerName: string) {
 
 // mewmbaMoveToPlayer("phillis", "4113")
 
-function mewmbaChasePlayer(mewmbaName: string, playerName: string) {
-    setJoinTrap(playerName, 3000, (player, id) => {
+function mewmbaHarassTheIntern(mewmbaName: string, playerName: string) {
+    setJoinTrap(playerName, 1000, (player, id) => {
         const mewmba = new Mewmba(game);
         mewmba.selectMewmba(mewmba.getMewmbaByName(mewmbaName));
-        mewmba.chasePlayer(playerName);
+        // mewmba.chasePlayer(playerName);
+        mewmba.createNeonLight(1, 1, "violet")
     })
 }
 
-mewmbaChasePlayer("phillis", "phillis")
+mewmbaHarassTheIntern("4113", "Michael Black")
