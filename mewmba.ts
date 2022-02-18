@@ -1,8 +1,10 @@
 import {Game, MapObject, WireObject} from "@gathertown/gather-game-client";
 import {GATHER_MAP_ID} from "./api-key";
 import PF, {DiagonalMovement} from "pathfinding";
-import {randomInt} from "crypto";
+import {randomInt, randomUUID} from "crypto";
 
+type GatherObjectCallback = (obj: MapObject, key: number) => void;
+type OnStepCallback = () => number[][];
 export class Mewmba {
     game: Game;
     selectedMewmba: MewmbaObject | undefined = undefined;
@@ -11,17 +13,32 @@ export class Mewmba {
         this.game = game
     }
 
-    listMewmbas(): MewmbaObject[] {
-        let mewmbas = []
+    filterObjectsByName(nameFilter: string, callback: GatherObjectCallback) {
         for (const _key in this.game.completeMaps[GATHER_MAP_ID]?.objects) {
             const key = parseInt(_key)
             const obj = this.game.completeMaps[GATHER_MAP_ID]?.objects?.[key]
             if (!obj || !obj._name) continue
-            if (obj._name!.toLowerCase().startsWith("mewmba")) {
-                mewmbas.push(new MewmbaObject(obj, key, obj._name!.toLowerCase()));
-            }
+            if (obj._name!.toLowerCase().includes(nameFilter.toLowerCase()))
+                callback(obj, key);
         }
+    }
+
+    listMewmbas(): MewmbaObject[] {
+        let mewmbas: MewmbaObject[] = []
+        this.filterObjectsByName("mewmba", (obj, key) => mewmbas.push(new MewmbaObject(obj, key, obj._name!.toLowerCase())))
         return mewmbas;
+    }
+
+    getNeonLights() {
+        this.filterObjectsByName("Neon Light (Circle)", (obj, key) => console.log(obj))
+    }
+
+    createNeonLight(x: number, y: number) {
+        const newLight = createLight(x, y, "red");
+        this.game.engine.sendAction({
+            $case: "mapAddObject",
+            mapAddObject: {mapId: GATHER_MAP_ID, object: newLight }
+        });
     }
 
     getMewmbaByName(name: string): MewmbaObject {
@@ -32,7 +49,6 @@ export class Mewmba {
         this.selectedMewmba = m;
     }
 
-
     downloadGrid(): PF.Grid {
         const impassable = this.game.completeMaps[GATHER_MAP_ID]?.collisions!
         let passGrid: number[][] = [];
@@ -42,6 +58,19 @@ export class Mewmba {
                 passGrid[row][col] = Number(impassable[row][col])
         }
         return new PF.Grid(passGrid);
+    }
+
+    computeRoute(target: Point): number[][] {
+        const roomba = this.selectedMewmba!.obj
+        // Download the grid
+        const grid = this.downloadGrid();
+        // Navigate there.
+        const finder = new PF.AStarFinder({
+            diagonalMovement: DiagonalMovement.Never,
+        })
+        const path = finder.findPath(roomba.x!, roomba.y!, target.x, target.y, grid);
+        console.log(path)
+        return path;
     }
 
     getPersonPoint(name: String): Point {
@@ -68,7 +97,7 @@ export class Mewmba {
         return {x: targetX, y: targetY};
     }
 
-    moveToPoint(target: Point): boolean {
+    moveTowardsPoint(target: Point): boolean {
         const {obj: roomba, key} = this.selectedMewmba!;
         const objectUpdates: { [key: number]: WireObject } = {};
 
@@ -114,30 +143,43 @@ export class Mewmba {
 
         return true
     }
-
     routeToPoint(target: Point) {
-        // Download the grid
-        const grid = this.downloadGrid();
+        const path = this.computeRoute(target);
+        this.animateMovement(path, undefined);
+    }
 
-        const {obj: roomba, key} = this.selectedMewmba!;
-        // Navigate there.
-        const finder = new PF.AStarFinder({
-            diagonalMovement: DiagonalMovement.Never,
-        })
-        const path = finder.findPath(roomba.x!, roomba.y!, target.x, target.y, grid);
-        console.log(path)
-
+    private animateMovement(path: number[][], onstepCallback: OnStepCallback | undefined) {
         // Trigger the animation to it
         let pathStep = 1;
         const stepTimer = setInterval(async () => {
-            if (!this.moveToPoint(Point.fromArray(path[pathStep])))
-                pathStep++;
+            if (!this.moveTowardsPoint(Point.fromArray(path[pathStep]))) {
+                if (onstepCallback) {
+                    path = onstepCallback();
+                } else {
+                    pathStep++;
+                }
+            }
 
             if (pathStep == path.length) {
                 clearInterval(stepTimer)
                 console.log("Mewmba parked")
             }
         }, 100);
+    }
+
+    chasePlayer(name: string) {
+        const path = this.computeRoute(this.getPersonPoint(name));
+        this.animateMovement(path, () => {
+            return this.computeRoute(this.getPersonPoint(name));
+        });
+    }
+
+    playJaws() {
+        // game.playSound("https://orangefreesounds.com/wp-content/uploads/2016/04/Jaws-theme-song.mp3", 0.3, context.playerId!)
+    }
+    rickroll(playerId: string) {
+        console.log("Rickroll time!")
+        this.game.playSound("https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Never+Gonna+Give+You+Up-+Original&filename=mz/Mzg1ODMxNTIzMzg1ODM3_JzthsfvUY24.MP3", 0.3, playerId)
     }
 }
 
