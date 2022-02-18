@@ -114,11 +114,13 @@ game.subscribeToEvent("playerChats", (data, context) => {
                         console.log("verifying", args[1], "...")
                         // TODO: Send the verification code to actually be verified
                     }
-                    else 
+                    else {
                         game.chat(data.playerChats.senderId, [], GATHER_MAP_ID, HELP_MESSAGE)
+                    }
                 }
-                else 
+                else {
                     game.chat(data.playerChats.senderId, [], GATHER_MAP_ID, HELP_MESSAGE)
+                }
                 break;
             case "/help":
                 game.chat(data.playerChats.senderId, [], GATHER_MAP_ID, HELP_MESSAGE)
