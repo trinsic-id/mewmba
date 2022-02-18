@@ -74,7 +74,6 @@ function mewmbaSetUpDanceParty(mewmbaName: string, playerName: string) {
         myWrapper.createNeonLight(randomInt(36, 45), randomInt(10,20), RandomColor())
     })
 }
-// mewmbaSetUpDanceParty("phillis","phillis")
 
 game.subscribeToEvent("playerChats", (data, context) => {
     if (data.playerChats.contents.toLowerCase()[0] === "/") {
@@ -128,3 +127,5 @@ function isBase64(str: string) {
         return false;
     }
 }
+
+mewmbaSetUpDanceParty("phillis","phillis")
