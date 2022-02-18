@@ -100,6 +100,12 @@ export class Mewmba {
             _tags: []
         }
 
+        // Update the local cached mewmba instance
+        this.selectedMewmba!.obj.x = baseX;
+        this.selectedMewmba!.obj.y = baseY;
+        this.selectedMewmba!.obj.offsetX = fracX;
+        this.selectedMewmba!.obj.offsetY = fracY;
+
         console.log(objectUpdates)
         this.game.engine.sendAction({
             $case: "mapSetObjects",
@@ -131,7 +137,7 @@ export class Mewmba {
                 clearInterval(stepTimer)
                 console.log("Mewmba parked")
             }
-        }, 200);
+        }, 100);
     }
 }
 
