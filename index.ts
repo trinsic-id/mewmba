@@ -99,3 +99,13 @@ function mewmbaSetUpDanceParty(mewmbaName: string, playerName: string) {
     })
 }
 mewmbaSetUpDanceParty("phillis","phillis")
+
+function printCoffeeCupImage(x: number, y: number, text: string) {
+    const { fonts, renderPixels } = require('js-pixel-fonts');
+    const pixels = renderPixels(text, fonts.sevenPlus);
+    // Iterate through the pixels and add all the coffee cups
+    for (let y = 0; y < pixels.length; y++)
+        for (let x = 0; x < pixels[y].length; x++)
+            console.log('coffee cup');
+}
+printCoffeeCupImage(36, 2, `Hi ${"Scott"}`)
