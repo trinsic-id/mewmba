@@ -3,24 +3,35 @@ import {GATHER_MAP_ID} from "./api-key";
 import PF, {DiagonalMovement} from "pathfinding";
 import {randomInt} from "crypto";
 
-export class Roomba {
+export class Mewmba {
     game: Game;
+    selectedMewmba: MewmbaObject | undefined = undefined;
 
     constructor(game: Game) {
         this.game = game
     }
 
-    getRoomba(): { obj: MapObject; key: number } {
-        for (const _key in this.game.partialMaps[GATHER_MAP_ID]?.objects) {
+    listMewmbas(): MewmbaObject[] {
+        let mewmbas = []
+        for (const _key in this.game.completeMaps[GATHER_MAP_ID]?.objects) {
             const key = parseInt(_key)
-            const obj = this.game.partialMaps[GATHER_MAP_ID]?.objects?.[key]
-            if (!obj) continue
-            if (obj._name! === "Cat Roomba") {
-                return {obj, key}
+            const obj = this.game.completeMaps[GATHER_MAP_ID]?.objects?.[key]
+            if (!obj || !obj._name) continue
+            if (obj._name!.toLowerCase().startsWith("mewmba")) {
+                mewmbas.push(new MewmbaObject(obj, key, obj._name!.toLowerCase()));
             }
         }
-        throw Error
+        return mewmbas;
     }
+
+    getMewmbaByName(name: string): MewmbaObject {
+        return this.listMewmbas().filter(value => value.name.toLowerCase().includes(name))[0];
+    }
+
+    selectMewmba(m: MewmbaObject): void {
+        this.selectedMewmba = m;
+    }
+
 
     downloadGrid(): PF.Grid {
         const impassable = this.game.completeMaps[GATHER_MAP_ID]?.collisions!
@@ -33,8 +44,14 @@ export class Roomba {
         return new PF.Grid(passGrid);
     }
 
-    getPersonPoint(): Point {
-        // TODO - Make it pick a person.
+    getPersonPoint(name: String): Point {
+        // Make it pick a person.
+        for (const playerKey in this.game.players) {
+            const player = this.game.getPlayer(playerKey);
+            if (player.name.toLowerCase().includes(name.toLowerCase())) {
+                return {x: player.x, y: player.y}
+            }
+        }
         throw Error
     }
 
@@ -51,8 +68,8 @@ export class Roomba {
         return {x: targetX, y: targetY};
     }
 
-    moveRoomba(target: Point): boolean {
-        const {obj: roomba, key} = this.getRoomba();
+    moveToPoint(target: Point): boolean {
+        const {obj: roomba, key} = this.selectedMewmba!;
         const objectUpdates: { [key: number]: WireObject } = {};
 
         // Move 1 step
@@ -92,11 +109,11 @@ export class Roomba {
         return true
     }
 
-    routeRoomba(target: Point) {
+    routeToPoint(target: Point) {
         // Download the grid
         const grid = this.downloadGrid();
 
-        const {obj: roomba, key} = this.getRoomba();
+        const {obj: roomba, key} = this.selectedMewmba!;
         // Navigate there.
         const finder = new PF.AStarFinder({
             diagonalMovement: DiagonalMovement.Never,
@@ -107,14 +124,14 @@ export class Roomba {
         // Trigger the animation to it
         let pathStep = 1;
         const stepTimer = setInterval(async () => {
-            if (!this.moveRoomba(Point.fromArray(path[pathStep])))
+            if (!this.moveToPoint(Point.fromArray(path[pathStep])))
                 pathStep++;
 
             if (pathStep == path.length) {
                 clearInterval(stepTimer)
-                console.log("Roomba parked")
+                console.log("Mewmba parked")
             }
-        }, 100);
+        }, 200);
     }
 }
 
@@ -125,4 +142,17 @@ class Point {
     public static fromArray(pt: number[]): Point {
         return {x: pt[0], y: pt[1]}
     }
+}
+
+class MewmbaObject {
+    obj: MapObject
+    key: number = 0
+    name: string = ""
+
+    constructor(obj: MapObject, key: number, name: string) {
+        this.obj = obj;
+        this.key = key;
+        this.name = name;
+    }
+
 }
