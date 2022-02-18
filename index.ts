@@ -1,8 +1,9 @@
 import {GATHER_API_KEY, GATHER_MAP_ID, GATHER_SPACE_ID} from "./api-key";
-import {Game, MapObject, WireObject} from "@gathertown/gather-game-client";
-// @ts-ignore
+import {Game} from "@gathertown/gather-game-client";
 import {Mewmba} from "./mewmba";
 import {Player} from "@gathertown/gather-game-common";
+import {randomInt} from "crypto";
+import {RandomColor} from "./neonLights";
 
 global.WebSocket = require("isomorphic-ws");
 
@@ -78,13 +79,26 @@ function mewmbaMoveToPlayer(mewmbaName: string, playerName: string) {
 
 // mewmbaMoveToPlayer("phillis", "4113")
 
-function mewmbaChasePlayer(mewmbaName: string, playerName: string) {
-    setJoinTrap(playerName, 3000, (player, id) => {
+function mewmbaHarassTheIntern(mewmbaName: string, playerName: string) {
+    setJoinTrap(playerName, 1000, (player, id) => {
         const mewmba = new Mewmba(game);
         mewmba.selectMewmba(mewmba.getMewmbaByName(mewmbaName));
-        mewmba.chasePlayer(playerName);
+        // mewmba.chasePlayer(playerName);
+        mewmba.createNeonLight(1, 1, "violet")
     })
 }
+// mewmbaHarassTheIntern("4113", "Michael Black")
+
+function mewmbaSetUpDanceParty(mewmbaName: string, playerName: string) {
+    setJoinTrap(playerName, 1000, (player, id) => {
+        const mewmba = new Mewmba(game);
+        mewmba.selectMewmba(mewmba.getMewmbaByName(mewmbaName));
+        // Range: (36,10) -> (45,20)
+        mewmba.routeToPoint({x: 36, y: 10})
+        mewmba.createNeonLight(randomInt(36, 45), randomInt(10,20), RandomColor())
+    })
+}
+mewmbaSetUpDanceParty("phillis","phillis")
 
 game.subscribeToEvent("playerChats", (data, context) => {
     if (data.playerChats.contents.toLowerCase()[0] === "/") {
