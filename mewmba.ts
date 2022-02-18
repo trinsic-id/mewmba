@@ -2,53 +2,22 @@ import {Game, MapObject, WireObject} from "@gathertown/gather-game-client";
 import {GATHER_MAP_ID} from "./api-key";
 import PF, {DiagonalMovement} from "pathfinding";
 import {randomInt} from "crypto";
-import {CreateLight} from "./neonLights";
 
-type GatherObjectCallback = (obj: MapObject, key: number) => void;
 type OnStepCallback = () => number[][];
 type OnStopCallback = () => void;
 
 export class Mewmba {
     game: Game;
-    selectedMewmba: MewmbaObject | undefined = undefined;
+    mapObject: MapObject
+    key: number
 
-    constructor(game: Game) {
+    constructor(game: Game, obj: MapObject, key: number) {
         this.game = game
+        this.mapObject = obj
+        this.key = key
     }
 
-    filterObjectsByName(nameFilter: string, callback: GatherObjectCallback) {
-        for (const _key in this.game.completeMaps[GATHER_MAP_ID]?.objects) {
-            const key = parseInt(_key)
-            const obj = this.game.completeMaps[GATHER_MAP_ID]?.objects?.[key]
-            if (!obj || !obj._name) continue
-            if (obj._name!.toLowerCase().includes(nameFilter.toLowerCase()))
-                callback(obj, key);
-        }
-    }
-
-    listMewmbas(): MewmbaObject[] {
-        let mewmbas: MewmbaObject[] = []
-        this.filterObjectsByName("mewmba", (obj, key) => mewmbas.push(new MewmbaObject(obj, key, obj._name!.toLowerCase())))
-        return mewmbas;
-    }
-
-    createNeonLight(x: number, y: number, colorName: string) {
-        const newLight = CreateLight(x, y, colorName);
-        this.game.engine.sendAction({
-            $case: "mapAddObject",
-            mapAddObject: {mapId: GATHER_MAP_ID, object: newLight }
-        });
-    }
-
-    getMewmbaByName(name: string): MewmbaObject {
-        return this.listMewmbas().filter(value => value.name.toLowerCase().includes(name))[0];
-    }
-
-    selectMewmba(m: MewmbaObject): void {
-        this.selectedMewmba = m;
-    }
-
-    downloadGrid(): PF.Grid {
+    private downloadGrid(): PF.Grid {
         const impassable = this.game.completeMaps[GATHER_MAP_ID]?.collisions!
         let passGrid: number[][] = [];
         for (let row = 0; row < impassable.length; row++) {
@@ -60,7 +29,7 @@ export class Mewmba {
     }
 
     computeRoute(target: Point): number[][] {
-        const roomba = this.selectedMewmba!.obj
+        const roomba = this.mapObject
         // Download the grid
         const grid = this.downloadGrid();
         // Navigate there.
@@ -96,8 +65,8 @@ export class Mewmba {
         return {x: targetX, y: targetY};
     }
 
-    moveTowardsPoint(target: Point): boolean {
-        const {obj: roomba, key} = this.selectedMewmba!;
+    private moveTowardsPoint(target: Point): boolean {
+        const roomba = this.mapObject
         const objectUpdates: { [key: number]: WireObject } = {};
 
         // Move 1 step
@@ -120,7 +89,7 @@ export class Mewmba {
         const baseY = Math.floor(newY);
         const fracX = Math.floor(pixelSize * (newX - baseX))
         const fracY = Math.floor(pixelSize * (newY - baseY))
-        objectUpdates[key] = {
+        objectUpdates[this.key] = {
             x: baseX,
             y: baseY,
             offsetX: fracX,
@@ -129,10 +98,10 @@ export class Mewmba {
         }
 
         // Update the local cached mewmba instance
-        this.selectedMewmba!.obj.x = baseX;
-        this.selectedMewmba!.obj.y = baseY;
-        this.selectedMewmba!.obj.offsetX = fracX;
-        this.selectedMewmba!.obj.offsetY = fracY;
+        this.mapObject.x = baseX;
+        this.mapObject.y = baseY;
+        this.mapObject.offsetX = fracX;
+        this.mapObject.offsetY = fracY;
 
         console.log(objectUpdates)
         this.game.engine.sendAction({
@@ -142,6 +111,7 @@ export class Mewmba {
 
         return true
     }
+
     routeToPoint(target: Point) {
         const path = this.computeRoute(target);
         this.animateMovement(path, undefined, undefined);
@@ -174,17 +144,9 @@ export class Mewmba {
             return this.computeRoute(this.getPersonPoint(name));
         }, () => {
             const point = this.getPersonPoint(name)
-            this.createNeonLight(point.x + randomInt(-1, 1), point.y + randomInt(-1, 1), "red")
-            this.rickroll("")
+            // this.createNeonLight(point.x + randomInt(-1, 1), point.y + randomInt(-1, 1), "red")
+            // this.rickroll("")
         });
-    }
-
-    playJaws() {
-        // game.playSound("https://orangefreesounds.com/wp-content/uploads/2016/04/Jaws-theme-song.mp3", 0.3, context.playerId!)
-    }
-    rickroll(playerId: string) {
-        console.log("Rickroll time!")
-        this.game.playSound("https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Never+Gonna+Give+You+Up-+Original&filename=mz/Mzg1ODMxNTIzMzg1ODM3_JzthsfvUY24.MP3", 0.3, playerId)
     }
 }
 
@@ -197,7 +159,7 @@ class Point {
     }
 }
 
-class MewmbaObject {
+export class MewmbaObject {
     obj: MapObject
     key: number = 0
     name: string = ""
