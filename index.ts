@@ -120,8 +120,6 @@ game.subscribeToEvent("playerChats", (data, context) => {
                 else 
                     game.chat(data.playerChats.senderId, [], GATHER_MAP_ID, HELP_MESSAGE)
                 break;
-            case "/test":
-                console.log(game.players)
             case "/help":
                 game.chat(data.playerChats.senderId, [], GATHER_MAP_ID, HELP_MESSAGE)
                 break;
