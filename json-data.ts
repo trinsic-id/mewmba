@@ -1,4 +1,4 @@
-import {randomInt} from "crypto";
+import {randomInt, randomUUID} from "crypto";
 
 export function CreateLight(x: number, y: number, colorName: string) {
     const lightId = "fQUHe3C1UWtUbqRu_SpNX"
@@ -21,6 +21,33 @@ export function CreateLight(x: number, y: number, colorName: string) {
         "_tags": [],
         "properties": {}
     };
+}
+
+export function CreateCoffeeCup(x: number, y: number) {
+    return {
+        "_tags": [
+            "flair",
+            "decoration",
+            "food",
+            "eating",
+            "office decor"
+        ],
+        "templateId": "ToGoCoffee - eFynd1wtJVeD5aLmLNtBk",
+        "_name": "To-Go Coffee",
+        "x": Math.floor(x),
+        "y": Math.floor(y),
+        "offsetX": 32*(x-Math.floor(x)),
+        "offsetY": 32*(y-Math.floor(y)),
+        "color": "#c4824e",
+        "orientation": 0,
+        "normal": "https://cdn.gather.town/v0/b/gather-town.appspot.com/o/internal-dashboard-upload%2FMF3MlC43S7RZrzux?alt=media&token=6dc635a5-0a8a-4aab-8a81-da1ee33aff21",
+        "highlighted": "https://cdn.gather.town/v0/b/gather-town.appspot.com/o/internal-dashboard-upload%2FdbPBZUNtHcRtKgo2?alt=media&token=0183a74a-b722-4f99-a193-ee865d919212",
+        "type": 0,
+        "width": 1,
+        "height": 1,
+        "id": `ToGoCoffee - eFynd1wtJVeD5aLmLNtBk_${randomUUID()}`,
+        "properties": {}
+    }
 }
 
 export function RandomColor() {

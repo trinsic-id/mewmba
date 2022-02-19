@@ -148,6 +148,16 @@ export class Mewmba {
             // this.rickroll("")
         });
     }
+
+    cleanupCoffee(coffeeKey: { obj: MapObject; key: number }) {
+        const coffee = coffeeKey.obj
+        const path = this.computeRoute({x: coffee.x, y: coffee.y});
+        this.animateMovement(path, undefined, () => {
+            // Remove the object
+            this.game.deleteObject(GATHER_MAP_ID, String(coffeeKey.key))
+            let a = 1
+        })
+    }
 }
 
 class Point {
