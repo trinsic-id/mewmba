@@ -70,7 +70,7 @@ export class Mewmba {
         const objectUpdates: { [key: number]: WireObject } = {};
 
         // Move 1 step
-        const speed = 1.0  // pixels per step
+        const speed = 2.0  // pixels per step
         const pixelSize = 32.0
         const dx = target.x - (roomba.x + roomba.offsetX! / pixelSize);
         const dy = target.y - (roomba.y + roomba.offsetY! / pixelSize);
