@@ -3,7 +3,7 @@ import {Game} from "@gathertown/gather-game-client";
 import {Mewmba} from "./mewmba";
 import {Player} from "@gathertown/gather-game-common";
 import {randomInt} from "crypto";
-import {RandomColor} from "./neonLights";
+import {RandomColor} from "./json-data";
 import {GatherWrapper} from "./gatherwrapper";
 
 global.WebSocket = require("isomorphic-ws");
@@ -31,9 +31,10 @@ type TrapCallback = (player: Player, id: string) => void;
 
 function setJoinTrap(playerName: string, delay: number, callback: TrapCallback) {
     game.subscribeToEvent("playerJoins", (data, context) => {
-        setTimeout(async () => {
+        let t1 = setTimeout(async () => {
             const player = game.getPlayer(context.playerId!)
             if (player.name.toLowerCase().includes(playerName.toLowerCase())) {
+                clearTimeout(t1);
                 callback(player, context.playerId!);
             }
         }, delay);
@@ -54,6 +55,7 @@ function setRickRollTrap(playerName: string) {
         myWrapper.rickroll(id)
     })
 }
+
 // setRickRollTrap("4113")
 
 function mewmbaHarassTheIntern(mewmbaName: string, playerName: string) {
@@ -63,6 +65,7 @@ function mewmbaHarassTheIntern(mewmbaName: string, playerName: string) {
         myWrapper.createNeonLight(1, 1, "violet")
     })
 }
+
 // mewmbaHarassTheIntern("4113", "Michael Black")
 
 function mewmbaSetUpDanceParty(mewmbaName: string, playerName: string) {
@@ -70,8 +73,42 @@ function mewmbaSetUpDanceParty(mewmbaName: string, playerName: string) {
         const mewmba = myWrapper.getMewmbaByName(mewmbaName);
         // Range: (36,10) -> (45,20)
         mewmba.routeToPoint({x: 36, y: 10})
-        myWrapper.createNeonLight(randomInt(36, 45), randomInt(10,20), RandomColor())
+        myWrapper.createNeonLight(randomInt(36, 45), randomInt(10, 20), RandomColor())
     })
 }
 
-mewmbaSetUpDanceParty("phillis","phillis")
+function printCoffeeCupImage(x: number, y: number, text: string) {
+    const {fonts, renderPixels} = require('js-pixel-fonts');
+    const pixels = renderPixels(text, fonts.sevenPlus);
+    // Iterate through the pixels and add all the coffee cups
+    const pixelScale = 4
+    let index = 1;
+    // TODO - Fix the rate limiter
+    for (let yp = 0; yp < pixels.length; yp++) {
+        for (let xp = 0; xp < pixels[yp].length; xp++) {
+            if (pixels[yp][xp] === 0) continue;
+            // Fractional scaling cups
+            let t1 = setTimeout(() => {
+                let xc = (x + xp / pixelScale)
+                let yc = (y + yp / pixelScale)
+                myWrapper.createCoffee(xc, yc)
+                clearTimeout(t1);
+            }, 1000 * index)
+            index++;
+        }
+    }
+}
+
+// printCoffeeCupImage(48, 7, `Hi ${"Scott"}`)
+
+// mewmbaSetUpDanceParty("phillis", "phillis")
+
+function mewmbaCleanupCoffee(mewmbaName: string, playerName: string) {
+    setJoinTrap(playerName, 1000, (player, id) => {
+        const mewmba = myWrapper.getMewmbaByName(mewmbaName);
+        const coffee = myWrapper.findCoffee()
+        mewmba.cleanupCoffee(coffee)
+    })
+}
+
+mewmbaCleanupCoffee("4113", "phillis")

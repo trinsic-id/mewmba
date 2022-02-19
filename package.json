@@ -20,6 +20,7 @@
   "dependencies": {
     "@gathertown/gather-game-client": "32.0.0",
     "isomorphic-ws": "^4.0.1",
+    "js-pixel-fonts": "^1.5.0",
     "pathfinding": "^0.4.18",
     "ws": "^8.4.2"
   },

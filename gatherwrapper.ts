@@ -1,7 +1,7 @@
 import {Game, MapObject} from "@gathertown/gather-game-client";
 import {GATHER_MAP_ID} from "./api-key";
 import {Mewmba, MewmbaObject} from "./mewmba";
-import {CreateLight} from "./neonLights";
+import {CreateCoffeeCup, CreateLight} from "./json-data";
 import {randomInt} from "crypto";
 
 type GatherObjectCallback = (obj: MapObject, key: number) => void;
@@ -36,6 +36,14 @@ export class GatherWrapper {
         });
     }
 
+    createCoffee(x: number, y: number) {
+        const newCup = CreateCoffeeCup(x, y);
+        this.game.engine.sendAction({
+            $case: "mapAddObject",
+            mapAddObject: {mapId: GATHER_MAP_ID, object: newCup }
+        });
+    }
+
     getMewmbaByName(name: string): Mewmba {
         const mobj = this.listMewmbas().filter(value => value.name.toLowerCase().includes(name))[0];
         return new Mewmba(this.game, mobj.obj, mobj.key);
@@ -52,5 +60,12 @@ export class GatherWrapper {
     rickroll(playerId: string) {
         console.log("Rickroll time!")
         this.game.playSound("https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Never+Gonna+Give+You+Up-+Original&filename=mz/Mzg1ODMxNTIzMzg1ODM3_JzthsfvUY24.MP3", 0.5, playerId)
+    }
+
+    findCoffee(): { obj: MapObject; key: number } {
+        // Find a random coffee cup, and go vacuum it up
+        let coffees: {obj: MapObject, key: number}[] = []
+        this.filterObjectsByName("To-Go Coffee", (obj, key) => coffees.push({obj, key}))
+        return coffees[randomInt(coffees.length)]
     }
 }
