@@ -8,6 +8,9 @@ export function storeProfile(profile: AccountProfile, alias: string = "mewmba") 
 }
 
 export async function loadProfile(alias: string = "mewmba") {
+    // load a profile from disk if available, otherwise create it.
+    // defaults to 'mewmba' profile.
+
     let file = alias + ".bin";
     if (existsSync(file)) {
         return AccountProfile.deserializeBinary(readFileSync(file));
