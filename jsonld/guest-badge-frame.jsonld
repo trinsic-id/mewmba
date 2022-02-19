@@ -7,5 +7,14 @@
     "type": [
         "VerifiableCredential",
         "MewmbaGuestBadge"
-    ]
+    ],
+    "@explicit": true,
+    "issuer": {},
+    "credentialSubject": {
+        "@explicit": true,
+        "@type": "MewmbaGuestBadge",
+        "name": {},
+        "email": {},
+        "color": {}
+    }
 }
