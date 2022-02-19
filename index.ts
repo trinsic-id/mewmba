@@ -127,11 +127,9 @@ flower.verifyProof("eNqdVVuTmkgYfc+vmJo8JhnlJmBVqiIgOiqOdwa3tlJN02CrXOwLAqn89yCj
 // flower.verifyProof("eNrdVFlzqkgU/isp7mMSkUVBq27VFY0aQQdxITA1datpGmwFGrsbEVP57wNmm8zyMPM4T1B9zrf0dw48Cz8gyTg6c6H/q7DjPGd9USzLslUqLUJjUW5LuggpClHGMUiYeJKEu89GBYfXtiD4U4XBHUpBi1OcMQxbMCFFKP78GaIIFAkX4wIxHoAwRuK7/m93Aq9y1PjYIoojDIIEDT+Ua+5JAzIaUNP8aWp11aqBzwIOhf6/9yC8SwszRrJXui1IcAg4oU0CwstXwSLYI1hH9iyMiyRZgLTBWoSi9AbnrEhvQpIQWtMuMDxk/1weXp99wQAUooRkoD57SAFO6jOQ/QQQkiLjP9AZpHmCWpCkdYNNEat9AI5J9ia9rm9yc31/uRMwYwXIIBoB3tTktizft+V7SV/Lcr8j92Wlpak9pStLfs12TaygWb8ocNhHUbcdtAOIdABV2IG6pIaSJMndNoAA6B3hSwy1h4I1KXyQvGXdp+hE4NXhPUUxZpxWfZUExn5x7MSHSXGiBeniWc/D37TP9J0PlFVDauPtN4k7gX4pPWYhOtcA7S+VPyzMf3X0niFqJhPWoRxQ1b901nA08A5xdbYRWxTElXv0TGyjGpnquVqmq14wm2l2d6uDyZFaxXJ+UcPInfi4t7Vc5l4enoZD5xIF42FWLnY7be1C09d99WFjaup+GTvHgcFm1WAarczLg9/zoSv53IsUHhvrHRpMDWuKTnypknJZBCNH7enITmXFdPSTm+4PCE1nLJwXxsqMQz7J0ExTPW/iKUqWH80lGKValm6qOrGcEhI1Y3uL3QiYkbAVjrM6bIqa3F/nXC9Q+LcbpPrvNHZBc8IaFsAYok2+c8R3JHxvqL+joinH5+XtQroN4XHzyyOWckINx5otn9DYAa6YL8jwzN3sUEn+vnxcV6vMysku89VAT592g9vBaKkwVcTlbTdEetpxt8ngqeyN/ZnVnrZLXS/YqhtGVbR3dtyrUnKR/UdblObc9NAATrQ9UBU8Vjw0TXePohMid3McDL5/r32err+b1+V4M/8/HPy3y2aomb1uMQ7Mzb6rZ1nX0Mo1mB+5N17M/bXp2HMwcUqZ79RRDsfTPLIty65OW1djMqHSdnTxNDrfrsLhfk07uNuBe3yyGFOV0TE2NbtaOSeZ6UpmHydRZ+EMJ+bqIbatxUIfOqVUTFVvUggvL78Dbh8w9g==")
 async function runGuestBadgeIssuer() {
     let issuer = new GuestBadgeIssuer();
-    let verifier = new GuestBadgeVerifier();
     let guest = await loadProfile("guest");
-    let walletService = new WalletService({profile: guest});
-    let credentialService = new WalletService({profile: guest});
     issuer.issueProofFromTemplate("4113", "4113@example.com", "green", guest);
 }
 
-runGuestBadgeIssuer();
+// uncomment this line to test issuance!
+// runGuestBadgeIssuer();
