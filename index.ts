@@ -3,13 +3,10 @@ import {Game} from "@gathertown/gather-game-client";
 import {Mewmba} from "./mewmba";
 import {GuestBadgeIssuer} from "./guest_badge/issuer";
 import {GuestBadgeVerifier} from "./guest_badge/verifier";
-import { PassThrough } from "stream";
 import {Player} from "@gathertown/gather-game-common";
 import {randomInt} from "crypto";
 import {RandomColor} from "./json-data";
 import {GatherWrapper} from "./gatherwrapper";
-import {CredentialService, WalletService} from "@trinsic/trinsic";
-import { deflateSync } from 'zlib';
 
 global.WebSocket = require("isomorphic-ws");
 

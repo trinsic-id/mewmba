@@ -1,5 +1,5 @@
 import { AccountService, AccountProfile } from "@trinsic/trinsic";
-import {writeFileSync, readFileSync, existsSync } from 'fs';
+import { writeFileSync, readFileSync, existsSync } from 'fs';
 
 
 export function storeProfile(profile: AccountProfile, filename: string) {
