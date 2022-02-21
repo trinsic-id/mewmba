@@ -103,11 +103,11 @@ function printCoffeeCupImage(x: number, y: number, text: string) {
 
 async function runGuestBadgeIssuerAndVerifier() {
     let issuer = new GuestBadgeIssuer();
-    let proof = await issuer.issueProofFromTemplate("4113", "4113@example.com", "green");
-    let encoded_proof = issuer.encodeProofDocument(proof);
+    let proof = await issuer.issueGuestBadgeProof("4113", "4113@example.com", "green");
+    console.log('proof: ' + proof);
 
     let verifier = new GuestBadgeVerifier();
-    await verifier.verifyProof(encoded_proof);
+    await verifier.verifyGuestBadgeProof(proof);
 }
 
 

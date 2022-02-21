@@ -1,7 +1,6 @@
 import { AccountProfile, AccountService, CredentialService, WalletService, IssueFromTemplateRequest } from "@trinsic/trinsic";
-import { loadMewmbaProfile, loadNewProfile } from "./common";
+import { loadMewmbaProfile, loadNewProfile, encodeProofDocument } from "./common";
 import { readFileSync } from 'fs';
-import { deflateSync } from 'zlib';
 import { resolve } from 'path';
 
 const GUEST_BADGE_TEMPLATE_ID = "urn:template:__default:mewmbaguestbadge";
@@ -14,13 +13,11 @@ export class GuestBadgeIssuer {
 
     proofRequestFrame: JSON = JSON.parse(readFileSync(resolve(this.getJsonLdFile("guest-badge-frame")), "utf8"));
 
-    encodeProofDocument(proofDocument: string) {
-        let compressed = deflateSync(JSON.stringify(proofDocument));
-        let encoded = Buffer.from(compressed).toString("base64");
-        return encoded;
-    }
 
-    async issueProofFromTemplate(name: string, email: string, color: string) {
+    async issueGuestBadgeProof(name: string, email: string, color: string, encode: boolean = false) {
+        // Issue a MewmbaGuestBadge proof document. If `encode` is true, return it as a compressed
+        // base 64 string. Otherwise, return it as a JSON string.
+
         let credential_values = JSON.stringify({
             name: name,
             email: email,
@@ -38,13 +35,17 @@ export class GuestBadgeIssuer {
         let itemId = await walletService.insertItem(JSON.parse(credential));
         credentialService.updateActiveProfile(guest);
         let proof = await credentialService.createProof(itemId, this.proofRequestFrame);
-        console.log('[issueProofFromTemplate] proof: ' + JSON.stringify(proof));
 
         // sanity-check verification will work since mewmba is both issuer and verifier
         credentialService.updateActiveProfile(mewmba);
         let isVerified = await credentialService.verifyProof(proof);
-        console.log("[issueProofFromTemplate] isVerified: " + isVerified);
-        return proof;
+        console.log("[issue] isVerified: " + isVerified);
+
+        if (encode) {
+            return encodeProofDocument(proof);
+        } else {
+            return JSON.stringify(proof);
+        }
 
     }
 
