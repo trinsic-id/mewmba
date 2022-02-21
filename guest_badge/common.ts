@@ -2,23 +2,24 @@ import { AccountService, AccountProfile } from "@trinsic/trinsic";
 import {writeFileSync, readFileSync, existsSync } from 'fs';
 
 
-export function storeProfile(profile: AccountProfile, alias: string = "mewmba") {
-    let file = alias + ".bin";
-    writeFileSync(file, profile.serializeBinary());
+export function storeProfile(profile: AccountProfile, filename: string) {
+    writeFileSync(filename, profile.serializeBinary());
 }
 
-export async function loadProfile(alias: string = "mewmba") {
-    // load a profile from disk if available, otherwise create it.
-    // defaults to 'mewmba' profile.
+export async function loadNewProfile() {
+    let accountService = new AccountService({});
+    return (await accountService.signIn()).getProfile()!;
+}
 
-    let file = alias + ".bin";
-    if (existsSync(file)) {
-        return AccountProfile.deserializeBinary(readFileSync(file));
+export async function loadMewmbaProfile() {
+    // load mewmba's profile from disk if available, otherwise create it.
+
+    let filename = "mewmba.bin"
+    if (existsSync(filename)) {
+        return AccountProfile.deserializeBinary(readFileSync(filename));
     } else {
-        let accountService = new AccountService({});
-        let profile = (await accountService.signIn()).getProfile()!;
-        // TODO: uncomment this, may depend on https://github.com/trinsic-id/sdk/issues/388#issuecomment-1045621852
-        // storeProfile(profile, alias);
+        let profile = await loadNewProfile();
+        storeProfile(profile, filename);
         return profile;
     }
 }

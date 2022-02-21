@@ -1,6 +1,6 @@
 import { AccountProfile, CredentialService, WalletService } from "@trinsic/trinsic";
 import { inflateSync } from 'zlib';
-import { loadProfile } from './common';
+import { loadMewmbaProfile } from './common';
 
 export class GuestBadgeVerifier {
 
@@ -11,10 +11,10 @@ export class GuestBadgeVerifier {
         return document;
     }
 
-    async verifyProof(encodedProofDocument: string, profile: AccountProfile) {
+    async verifyProof(encodedProofDocument: string) {
         let document = this.getDecodedDocument(encodedProofDocument)
-        let mewmba = await loadProfile();
-        const credentialService = new CredentialService({profile: profile});
+        let mewmba = await loadMewmbaProfile();
+        const credentialService = new CredentialService({profile: mewmba});
 
         let isVerified = await credentialService.verifyProof(document);
         console.log("[verifyProof] isVerified: " + isVerified);

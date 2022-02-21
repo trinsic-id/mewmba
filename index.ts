@@ -1,14 +1,13 @@
 import {GATHER_API_KEY, GATHER_MAP_ID, GATHER_SPACE_ID} from "./api-key";
 import {Game} from "@gathertown/gather-game-client";
 import {Mewmba} from "./mewmba";
+import {GuestBadgeIssuer} from "./guest_badge/issuer";
+import {GuestBadgeVerifier} from "./guest_badge/verifier";
+import { PassThrough } from "stream";
 import {Player} from "@gathertown/gather-game-common";
 import {randomInt} from "crypto";
 import {RandomColor} from "./json-data";
 import {GatherWrapper} from "./gatherwrapper";
-import {FlowerVerifier} from "./flower-verifier";
-import {GuestBadgeIssuer} from "./guest_badge/issuer";
-import {GuestBadgeVerifier} from "./guest_badge/verifier";
-import {loadProfile} from "./guest_badge/common";
 import {CredentialService, WalletService} from "@trinsic/trinsic";
 import { deflateSync } from 'zlib';
 
@@ -107,14 +106,11 @@ function printCoffeeCupImage(x: number, y: number, text: string) {
 
 async function runGuestBadgeIssuerAndVerifier() {
     let issuer = new GuestBadgeIssuer();
-    let guest = await loadProfile("guest");
-    let mewmba = await loadProfile();
-    let proof = await issuer.issueProofFromTemplate("4113", "4113@example.com", "green", guest);
+    let proof = await issuer.issueProofFromTemplate("4113", "4113@example.com", "green");
+    let encoded_proof = issuer.encodeProofDocument(proof);
 
     let verifier = new GuestBadgeVerifier();
-    let zippedDocument = deflateSync(JSON.stringify(proof));
-    let encodedDocument = Buffer.from(zippedDocument).toString("base64");
-    await verifier.verifyProof(encodedDocument, mewmba);
+    await verifier.verifyProof(encoded_proof);
 }
 
 
