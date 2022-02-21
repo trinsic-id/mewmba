@@ -1,6 +1,8 @@
 import {GATHER_API_KEY, GATHER_MAP_ID, GATHER_SPACE_ID} from "./api-key";
 import {Game} from "@gathertown/gather-game-client";
 import {Mewmba} from "./mewmba";
+import {GuestBadgeIssuer} from "./guest_badge/issuer";
+import {GuestBadgeVerifier} from "./guest_badge/verifier";
 import {Player} from "@gathertown/gather-game-common";
 import {randomInt} from "crypto";
 import {RandomColor} from "./json-data";
@@ -98,6 +100,19 @@ function printCoffeeCupImage(x: number, y: number, text: string) {
         }
     }
 }
+
+async function runGuestBadgeIssuerAndVerifier() {
+    let issuer = new GuestBadgeIssuer();
+    let proof = await issuer.issueGuestBadgeProof("4113", "4113@example.com", "green");
+    console.log('proof: ' + proof);
+
+    let verifier = new GuestBadgeVerifier();
+    await verifier.verifyGuestBadgeProof(proof);
+}
+
+
+// uncomment this line to test issuance!
+// runGuestBadgeIssuerAndVerifier();
 
 // printCoffeeCupImage(48, 7, `Hi ${"Scott"}`)
 

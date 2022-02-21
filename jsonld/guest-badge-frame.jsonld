@@ -1,0 +1,20 @@
+{
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://schema.trinsic.cloud/__default/mewmbaguestbadge/context",
+        "https://w3id.org/security/bbs/v1"
+    ],
+    "type": [
+        "VerifiableCredential",
+        "MewmbaGuestBadge"
+    ],
+    "@explicit": true,
+    "issuer": {},
+    "credentialSubject": {
+        "@explicit": true,
+        "@type": "MewmbaGuestBadge",
+        "name": {},
+        "email": {},
+        "color": {}
+    }
+}
