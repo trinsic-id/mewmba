@@ -115,7 +115,7 @@ async function runGuestBadgeIssuerAndVerifier() {
 
 
 // uncomment this line to test issuance!
-runGuestBadgeIssuerAndVerifier();
+// runGuestBadgeIssuerAndVerifier();
 
 // printCoffeeCupImage(48, 7, `Hi ${"Scott"}`)
 
