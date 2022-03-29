@@ -1,23 +1,23 @@
-import { AccountService, AccountProfile } from "@trinsic/trinsic";
+import {AccountService, AccountProfile, SignInRequest} from "@trinsic/trinsic";
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { deflateSync } from 'zlib';
 
 
-export function storeProfile(profile: AccountProfile, filename: string) {
-    writeFileSync(filename, profile.serializeBinary());
+export function storeProfile(profile: string, filename: string) {
+    writeFileSync(filename, profile);
 }
 
-export async function loadNewProfile() {
-    let accountService = new AccountService({});
-    return (await accountService.signIn()).getProfile()!;
+export async function loadNewProfile(): Promise<string> {
+    let accountService = new AccountService();
+    return (await accountService.signIn(new SignInRequest()));
 }
 
-export async function loadMewmbaProfile() {
+export async function loadMewmbaProfile(): Promise<string> {
     // load mewmba's profile from disk if available, otherwise create it.
 
     let filename = "mewmba.bin"
     if (existsSync(filename)) {
-        return AccountProfile.deserializeBinary(readFileSync(filename));
+        return readFileSync(filename).toString();
     } else {
         let profile = await loadNewProfile();
         storeProfile(profile, filename);

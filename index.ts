@@ -1,6 +1,5 @@
-import {GATHER_API_KEY, GATHER_MAP_ID, GATHER_SPACE_ID} from "./api-key";
+import * as ApiKeys from "./api-key";
 import {Game} from "@gathertown/gather-game-client";
-import {Mewmba} from "./mewmba";
 import {GuestBadgeIssuer} from "./guest_badge/issuer";
 import {GuestBadgeVerifier} from "./guest_badge/verifier";
 import {Player} from "@gathertown/gather-game-common";
@@ -8,16 +7,17 @@ import {randomInt} from "crypto";
 import {RandomColor} from "./json-data";
 import {GatherWrapper} from "./gatherwrapper";
 
+
 global.WebSocket = require("isomorphic-ws");
 
 // gather game client setup
-const game = new Game(() => Promise.resolve({apiKey: GATHER_API_KEY}));
-game.connect(GATHER_SPACE_ID);
+const game = new Game(() => Promise.resolve({apiKey: ApiKeys.GATHER_API_KEY}));
+game.connect(ApiKeys.GATHER_SPACE_ID);
 const myWrapper = new GatherWrapper(game)
 
 function subscribeToMapSetObjects() {
     game.subscribeToEvent("mapSetObjects", (data, context) => {
-        if (data.mapSetObjects.mapId !== GATHER_MAP_ID) return
+        if (data.mapSetObjects.mapId !== ApiKeys.GATHER_MAP_ID) return
         // Ensure this is a create
         // @ts-ignore
         if (data.mapSetObjects.objects.length > 1) return
@@ -126,4 +126,4 @@ function mewmbaCleanupCoffee(mewmbaName: string, playerName: string) {
     })
 }
 
-mewmbaCleanupCoffee("4113", "phillis")
+// mewmbaCleanupCoffee("4113", "phillis")

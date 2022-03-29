@@ -1,31 +1,29 @@
-import { AccountProfile, CredentialService, WalletService } from "@trinsic/trinsic";
+import {AccountProfile, CredentialService, ServiceOptions, VerifyProofRequest, WalletService} from "@trinsic/trinsic";
 import { inflateSync } from 'zlib';
 import { loadMewmbaProfile } from './common';
 
 export class GuestBadgeVerifier {
 
-    getDecodedDocument(encodedProofDocument: string) {
+    getDecodedDocument(encodedProofDocument: string): string {
         // decode a compressed/base64-encoded proof document
         let compressed = Buffer.from(encodedProofDocument, "base64");
-        let document = JSON.parse(inflateSync(compressed).toString("utf-8"));
-        return document;
+        return inflateSync(compressed).toString("utf-8")
     }
 
     async verifyGuestBadgeProof(proofDocument: string, encoded: boolean = false) {
         // Verify a MewmbaGuestBadge proof document. If `encoded` is true, interpret the
         // document as a compressed base64 string. Otherwise, interpret it as a JSON string.
 
-        let proof: JSON;
+        let proof: string = proofDocument;
         if (encoded) {
             proof = this.getDecodedDocument(proofDocument);
         } else {
-            proof = JSON.parse(proofDocument);
         }
 
         let mewmba = await loadMewmbaProfile();
-        const credentialService = new CredentialService({profile: mewmba});
+        const credentialService = new CredentialService(new ServiceOptions().setAuthToken(mewmba));
 
-        let isVerified = await credentialService.verifyProof(proof);
+        let isVerified = await credentialService.verifyProof(new VerifyProofRequest().setProofDocumentJson(proofDocument));
         console.log("[verify] isVerified: " + isVerified);
     }
 
