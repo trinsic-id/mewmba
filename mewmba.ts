@@ -44,7 +44,7 @@ export class Mewmba {
     getPersonPoint(name: String): Point {
         // Make it pick a person.
         for (const playerKey in this.game.players) {
-            const player = this.game.getPlayer(playerKey);
+            const player = this.game.getPlayer(playerKey)!;
             if (player.name.toLowerCase().includes(name.toLowerCase())) {
                 return {x: player.x, y: player.y}
             }
@@ -180,4 +180,7 @@ export class MewmbaObject {
         this.name = name;
     }
 
+    toString(): string {
+        return `Mewmba name=${this.name} key=${this.key} object=${this.obj}`
+    }
 }

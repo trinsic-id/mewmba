@@ -1,6 +1,5 @@
-import {GATHER_API_KEY, GATHER_MAP_ID, GATHER_SPACE_ID} from "./api-key";
+import * as ApiKeys from "./api-key";
 import {Game} from "@gathertown/gather-game-client";
-import {Mewmba} from "./mewmba";
 import {GuestBadgeIssuer} from "./guest_badge/issuer";
 import {GuestBadgeVerifier} from "./guest_badge/verifier";
 import {Player} from "@gathertown/gather-game-common";
@@ -8,16 +7,17 @@ import {randomInt} from "crypto";
 import {RandomColor} from "./json-data";
 import {GatherWrapper} from "./gatherwrapper";
 
+
 global.WebSocket = require("isomorphic-ws");
 
 // gather game client setup
-const game = new Game(() => Promise.resolve({apiKey: GATHER_API_KEY}));
-game.connect(GATHER_SPACE_ID);
+const game = new Game(ApiKeys.GATHER_SPACE_ID, () => Promise.resolve({apiKey: ApiKeys.GATHER_API_KEY}));
+game.connect();
 const myWrapper = new GatherWrapper(game)
 
 function subscribeToMapSetObjects() {
     game.subscribeToEvent("mapSetObjects", (data, context) => {
-        if (data.mapSetObjects.mapId !== GATHER_MAP_ID) return
+        if (data.mapSetObjects.mapId !== ApiKeys.GATHER_MAP_ID) return
         // Ensure this is a create
         // @ts-ignore
         if (data.mapSetObjects.objects.length > 1) return
@@ -34,7 +34,7 @@ type TrapCallback = (player: Player, id: string) => void;
 function setJoinTrap(playerName: string, delay: number, callback: TrapCallback) {
     game.subscribeToEvent("playerJoins", (data, context) => {
         let t1 = setTimeout(async () => {
-            const player = game.getPlayer(context.playerId!)
+            const player = game.getPlayer(context.playerId!)!
             if (player.name.toLowerCase().includes(playerName.toLowerCase())) {
                 clearTimeout(t1);
                 callback(player, context.playerId!);
@@ -42,6 +42,14 @@ function setJoinTrap(playerName: string, delay: number, callback: TrapCallback) 
         }, delay);
     });
 }
+
+function printMewmbaList() {
+    for (const mewmba in myWrapper.listMewmbas()) {
+        console.log(mewmba)
+    }
+}
+
+printMewmbaList()
 
 // game.subscribeToConnection(connected => console.log("connected?", connected));
 // subscribeToMapSetObjects();
@@ -58,17 +66,17 @@ function setRickRollTrap(playerName: string) {
     })
 }
 
-// setRickRollTrap("4113")
+// setRickRollTrap("Chiara")
 
 function mewmbaHarassTheIntern(mewmbaName: string, playerName: string) {
     setJoinTrap(playerName, 1000, (player, id) => {
         const mewmba = myWrapper.getMewmbaByName(mewmbaName);
-        // mewmba.chasePlayer(playerName);
+        mewmba.chasePlayer(playerName);
         myWrapper.createNeonLight(1, 1, "violet")
     })
 }
 
-// mewmbaHarassTheIntern("4113", "Michael Black")
+mewmbaHarassTheIntern("phillis", "phillis")
 
 function mewmbaSetUpDanceParty(mewmbaName: string, playerName: string) {
     setJoinTrap(playerName, 1000, (player, id) => {
@@ -114,7 +122,7 @@ async function runGuestBadgeIssuerAndVerifier() {
 // uncomment this line to test issuance!
 // runGuestBadgeIssuerAndVerifier();
 
-// printCoffeeCupImage(48, 7, `Hi ${"Scott"}`)
+// printCoffeeCupImage(48, 7, `Hi ${"Chiara"}`)
 
 // mewmbaSetUpDanceParty("phillis", "phillis")
 
@@ -126,4 +134,4 @@ function mewmbaCleanupCoffee(mewmbaName: string, playerName: string) {
     })
 }
 
-mewmbaCleanupCoffee("4113", "phillis")
+// mewmbaCleanupCoffee("4113", "phillis")
