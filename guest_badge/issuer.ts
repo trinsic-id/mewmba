@@ -1,25 +1,24 @@
 import {
-    AccountProfile,
-    AccountService,
+    CreateProofRequest,
     CredentialService,
-    WalletService,
+    InsertItemRequest,
     IssueFromTemplateRequest,
-    ServiceOptions, InsertItemRequest, CreateProofRequest, VerifyProofRequest
-} from "@trinsic/trinsic";
-import { loadMewmbaProfile, loadNewProfile, encodeProofDocument } from "./common";
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
+    ServiceOptions,
+    WalletService
+} from "@trinsic/trinsic"
+import {encodeProofDocument, loadMewmbaProfile, loadNewProfile} from "./common";
+import {readFileSync} from 'fs';
+import {resolve} from 'path';
 
 const GUEST_BADGE_TEMPLATE_ID = "urn:template:__default:mewmbaguestbadge";
 
 export class GuestBadgeIssuer {
 
+    proofRequestFrame: string = readFileSync(resolve(this.getJsonLdFile("guest-badge-frame"))).toString();
+
     getJsonLdFile(filename: string) {
         return resolve(__dirname, "..", "..", "jsonld", filename + ".jsonld");
     }
-
-    proofRequestFrame: string = readFileSync(resolve(this.getJsonLdFile("guest-badge-frame"))).toString();
-
 
     async issueGuestBadgeProof(name: string, email: string, color: string, encode: boolean = false) {
         // Issue a MewmbaGuestBadge proof document. If `encode` is true, return it as a compressed
@@ -30,22 +29,24 @@ export class GuestBadgeIssuer {
             email: email,
             color: color
         });
-        let req = new IssueFromTemplateRequest().setTemplateId(GUEST_BADGE_TEMPLATE_ID)
-            .setValuesJson(credential_values);
+        let req = IssueFromTemplateRequest.fromPartial({
+            templateId: GUEST_BADGE_TEMPLATE_ID,
+            valuesJson: credential_values
+        })
 
         let mewmba = await loadMewmbaProfile();
-        let credentialService = new CredentialService(new ServiceOptions().setAuthToken(mewmba));
-        let credential = (await credentialService.issueFromTemplate(req)).getDocumentJson();
+        let credentialService = new CredentialService(ServiceOptions.fromPartial({authToken: mewmba}));
+        let credential = (await credentialService.issueFromTemplate(req)).documentJson;
 
         let guest = await loadNewProfile()
-        let walletService = new WalletService(new ServiceOptions().setAuthToken(guest));
-        let itemId = (await walletService.insertItem(new InsertItemRequest().setItemJson(credential))).getItemId();
-        credentialService.options.setAuthToken(guest);
-        let proof = (await credentialService.createProof(new CreateProofRequest().setItemId(itemId).setRevealDocumentJson(this.proofRequestFrame))).getProofDocumentJson();
+        let walletService = new WalletService(ServiceOptions.fromPartial({authToken: guest}));
+        let itemId = (await walletService.insertItem(InsertItemRequest.fromPartial({itemJson: credential}))).itemId;
+        credentialService.options.authToken = (guest);
+        let proof = (await credentialService.createProof(CreateProofRequest.fromPartial({revealDocumentJson: this.proofRequestFrame, itemId: itemId}))).proofDocumentJson;
 
         // sanity-check verification will work since mewmba is both issuer and verifier
-        credentialService.options.setAuthToken(mewmba);
-        let isVerified = await credentialService.verifyProof(new VerifyProofRequest().setProofDocumentJson(proof));
+        credentialService.options.authToken = (mewmba);
+        let isVerified = await credentialService.verifyProof({proofDocumentJson: proof});
         console.log("[issue] isVerified: " + isVerified);
 
         if (encode) {

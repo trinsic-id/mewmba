@@ -7,10 +7,11 @@ global.WebSocket = require("isomorphic-ws");
 
 // gather game client setup
 const game = new Game(ApiKeys.GATHER_SPACE_ID, () => Promise.resolve({apiKey: ApiKeys.GATHER_API_KEY}));
-game.connect();
-const myWrapper = new GatherWrapper(game)
+game.connect()?.then(value => {
+    const myWrapper = new GatherWrapper(game)
 
-myWrapper.printMewmbaList()
+    myWrapper.printMewmbaList()
+});
 
 // game.subscribeToConnection(connected => console.log("connected?", connected));
 // subscribeToMapSetObjects();

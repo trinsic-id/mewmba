@@ -1,6 +1,6 @@
 import {Game, MapObject, WireObject} from "@gathertown/gather-game-client";
 import {GATHER_MAP_ID} from "./api-key";
-import PF, {DiagonalMovement} from "pathfinding";
+import PF from "pathfinding";
 import {randomInt} from "crypto";
 
 type OnStepCallback = () => number[][];
@@ -34,7 +34,7 @@ export class Mewmba {
         const grid = this.downloadGrid();
         // Navigate there.
         const finder = new PF.AStarFinder({
-            diagonalMovement: DiagonalMovement.Never,
+            diagonalMovement: PF.DiagonalMovement.Never,
         })
         const path = finder.findPath(roomba.x!, roomba.y!, target.x, target.y, grid);
         console.log(path)
