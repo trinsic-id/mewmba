@@ -59,7 +59,7 @@ export class GatherWrapper {
 
     rickroll(playerId: string) {
         console.log("Rickroll time!")
-        this.game.playSound("https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Never+Gonna+Give+You+Up-+Original&filename=mz/Mzg1ODMxNTIzMzg1ODM3_JzthsfvUY24.MP3", 0.5, playerId)
+        this.game.playSound("https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Never+Gonna+Give+You+Up-+Original&filename=mz/Mzg1ODMxNTIzMzg1ODM3_JzthsfvUY24.MP3", 0.25, playerId)
     }
 
     findCoffee(): { obj: MapObject; key: number } {
