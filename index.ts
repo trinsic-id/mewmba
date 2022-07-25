@@ -1,6 +1,7 @@
 import * as ApiKeys from "./api-key";
 import {Game} from "@gathertown/gather-game-client";
 import {GatherWrapper} from "./gatherwrapper";
+import {pointFromArray} from "./mewmba";
 
 
 global.WebSocket = require("isomorphic-ws");
@@ -8,9 +9,13 @@ global.WebSocket = require("isomorphic-ws");
 // gather game client setup
 const game = new Game(ApiKeys.GATHER_SPACE_ID, () => Promise.resolve({apiKey: ApiKeys.GATHER_API_KEY}));
 game.connect()?.then(value => {
-    const myWrapper = new GatherWrapper(game)
+    game.waitForInit().then(value1 => {
+        const myWrapper = new GatherWrapper(game)
 
-    myWrapper.printMewmbaList()
+        myWrapper.printMewmbaList()
+        let myMewmba = myWrapper.getMewmbaByName("4113");
+        myMewmba.routeToPoint(pointFromArray([8, 8]));
+    });
 });
 
 // game.subscribeToConnection(connected => console.log("connected?", connected));
@@ -25,7 +30,6 @@ game.connect()?.then(value => {
 // setRickRollTrap("Chiara")
 
 // mewmbaHarassTheIntern("phillis", "phillis")
-
 
 // uncomment this line to test issuance!
 // runGuestBadgeIssuerAndVerifier();

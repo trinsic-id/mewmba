@@ -1,4 +1,4 @@
-import {Game, MapObject, WireObject} from "@gathertown/gather-game-client";
+import {Game, MapObject, Point, WireObject} from "@gathertown/gather-game-client";
 import {GATHER_MAP_ID} from "./api-key";
 import PF from "pathfinding";
 import {randomInt} from "crypto";
@@ -121,7 +121,7 @@ export class Mewmba {
         // Trigger the animation to it
         let pathStep = 1;
         const stepTimer = setInterval(async () => {
-            if (!this.moveTowardsPoint(Point.fromArray(path[pathStep]))) {
+            if (!this.moveTowardsPoint(pointFromArray(path[pathStep]))) {
                 if (onstepCallback) {
                     path = onstepCallback();
                 } else {
@@ -160,13 +160,8 @@ export class Mewmba {
     }
 }
 
-class Point {
-    x: number = 0
-    y: number = 0
-
-    public static fromArray(pt: number[]): Point {
-        return {x: pt[0], y: pt[1]}
-    }
+export function pointFromArray(pt: number[]): Point {
+    return {x: pt[0], y: pt[1]}
 }
 
 export class MewmbaObject {

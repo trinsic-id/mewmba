@@ -3,9 +3,8 @@
   "version": "0.1.0",
   "description": "Trinsic's digital assistant for gather! A metaverse cat-on-a-roomba!",
   "main": "index.ts",
-  "type": "module",
   "scripts": {
-    "start": "node --experimental-specifier-resolution=node --loader ts-node/esm index"
+    "start": "ts-node index.ts"
   },
   "repository": {
     "type": "git",
@@ -20,8 +19,7 @@
   "homepage": "https://github.com/fundthmcalculus/gathertown-desk-setup#readme",
   "dependencies": {
     "@gathertown/gather-game-client": "^37.0.1",
-    "@trinsic/trinsic": "^1.6.0-rc1",
-    "@trinsic/okapi": "^1.6.0-rc2",
+    "@trinsic/trinsic": "^1.6.1-rc2",
     "isomorphic-ws": "^4.0.1",
     "js-pixel-fonts": "^1.5.0",
     "pathfinding": "^0.4.18",
@@ -29,9 +27,9 @@
   },
   "devDependencies": {
     "@types/google-protobuf": "^3.15.6",
-    "@types/node": "^17.0.35",
+    "@types/node": "^18.6.1",
     "@types/pathfinding": "^0.0.5",
     "typescript": "^4.7.2",
-    "ts-node": "^10.8.0"
+    "ts-node": "^10.9.1"
   }
 }

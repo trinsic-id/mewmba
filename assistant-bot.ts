@@ -18,7 +18,7 @@ export class AssistantBot {
     }
 
     displayHelp(playerId: string) {
-        this.wrapper.game.chat(playerId, [], GATHER_MAP_ID, this.helpMessage);
+        this.wrapper.game.chat(playerId, [], GATHER_MAP_ID, {contents: this.helpMessage});
     }
 
     enableChatCommands() {
