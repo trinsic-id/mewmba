@@ -1,10 +1,13 @@
 {
   "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
     "composite": true,
     "outDir": "dist",
     "sourceMap": true,
     "strict": true,
     "esModuleInterop": true,
+    "moduleResolution": "Node",
     "lib": [
       "es2019",
       "dom"

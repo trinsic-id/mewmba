@@ -1,6 +1,6 @@
-import {Game, MapObject, WireObject} from "@gathertown/gather-game-client";
+import {Game, MapObject, Point, WireObject} from "@gathertown/gather-game-client";
 import {GATHER_MAP_ID} from "./api-key";
-import PF, {DiagonalMovement} from "pathfinding";
+import PF from "pathfinding";
 import {randomInt} from "crypto";
 
 type OnStepCallback = () => number[][];
@@ -34,7 +34,7 @@ export class Mewmba {
         const grid = this.downloadGrid();
         // Navigate there.
         const finder = new PF.AStarFinder({
-            diagonalMovement: DiagonalMovement.Never,
+            diagonalMovement: PF.DiagonalMovement.Never,
         })
         const path = finder.findPath(roomba.x!, roomba.y!, target.x, target.y, grid);
         console.log(path)
@@ -121,7 +121,7 @@ export class Mewmba {
         // Trigger the animation to it
         let pathStep = 1;
         const stepTimer = setInterval(async () => {
-            if (!this.moveTowardsPoint(Point.fromArray(path[pathStep]))) {
+            if (!this.moveTowardsPoint(pointFromArray(path[pathStep]))) {
                 if (onstepCallback) {
                     path = onstepCallback();
                 } else {
@@ -160,13 +160,8 @@ export class Mewmba {
     }
 }
 
-class Point {
-    x: number = 0
-    y: number = 0
-
-    public static fromArray(pt: number[]): Point {
-        return {x: pt[0], y: pt[1]}
-    }
+export function pointFromArray(pt: number[]): Point {
+    return {x: pt[0], y: pt[1]}
 }
 
 export class MewmbaObject {

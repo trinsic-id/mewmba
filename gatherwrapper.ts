@@ -1,10 +1,15 @@
 import {Game, MapObject} from "@gathertown/gather-game-client";
 import {GATHER_MAP_ID} from "./api-key";
 import {Mewmba, MewmbaObject} from "./mewmba";
-import {CreateCoffeeCup, CreateLight} from "./json-data";
+import {CreateCoffeeCup, CreateLight, RandomColor} from "./json-data";
 import {randomInt} from "crypto";
+import {Player} from "@gathertown/gather-game-common";
+import * as ApiKeys from "./api-key";
+import {GuestBadgeIssuer} from "./guest_badge/issuer";
+import {GuestBadgeVerifier} from "./guest_badge/verifier";
 
 type GatherObjectCallback = (obj: MapObject, key: number) => void;
+type TrapCallback = (player: Player, id: string) => void;
 
 export class GatherWrapper {
     game: Game;
@@ -26,6 +31,12 @@ export class GatherWrapper {
         let mewmbas: MewmbaObject[] = []
         this.filterObjectsByName("mewmba", (obj, key) => mewmbas.push(new MewmbaObject(obj, key, obj._name!.toLowerCase())))
         return mewmbas;
+    }
+
+    printMewmbaList() {
+        for (const mewmba in this.listMewmbas()) {
+            console.log(mewmba)
+        }
     }
 
     createNeonLight(x: number, y: number, colorName: string) {
@@ -53,8 +64,8 @@ export class GatherWrapper {
         return new Mewmba(this.game, mobj.obj, mobj.key);
     }
 
-    playJaws() {
-        // game.playSound("https://orangefreesounds.com/wp-content/uploads/2016/04/Jaws-theme-song.mp3", 0.3, context.playerId!)
+    playJaws(playerId: string) {
+        this.game.playSound("https://orangefreesounds.com/wp-content/uploads/2016/04/Jaws-theme-song.mp3", 0.3, playerId!)
     }
 
     rickroll(playerId: string) {
@@ -67,5 +78,94 @@ export class GatherWrapper {
         let coffees: { obj: MapObject, key: number }[] = []
         this.filterObjectsByName("To-Go Coffee", (obj, key) => coffees.push({obj, key}))
         return coffees[randomInt(coffees.length)]
+    }
+
+    setJoinTrap(playerName: string, delay: number, callback: TrapCallback) {
+        this.game.subscribeToEvent("playerJoins", (data, context) => {
+            let t1 = setTimeout(async () => {
+                const player = this.game.getPlayer(context.playerId!)!
+                if (player.name.toLowerCase().includes(playerName.toLowerCase())) {
+                    clearTimeout(t1);
+                    callback(player, context.playerId!);
+                }
+            }, delay);
+        });
+    }
+
+    subscribeToMapSetObjects() {
+        this.game.subscribeToEvent("mapSetObjects", (data, context) => {
+            if (data.mapSetObjects.mapId !== ApiKeys.GATHER_MAP_ID) return
+            // Ensure this is a create
+            // @ts-ignore
+            if (data.mapSetObjects.objects.length > 1) return
+            for (const dataKey in data.mapSetObjects.objects) {
+                const dataObject = data.mapSetObjects.objects[dataKey]
+                if (dataObject._name?.startsWith("To-Go Coffee"))
+                    console.log("Coffee needs ordered!")
+            }
+        })
+    }
+
+
+    mewmbaSetUpDanceParty(mewmbaName: string, playerName: string) {
+        this.setJoinTrap(playerName, 1000, (player, id) => {
+            const mewmba = this.getMewmbaByName(mewmbaName);
+            // Range: (36,10) -> (45,20)
+            mewmba.routeToPoint({x: 36, y: 10})
+            this.createNeonLight(randomInt(36, 45), randomInt(10, 20), RandomColor())
+        })
+    }
+
+    printCoffeeCupImage(x: number, y: number, text: string) {
+        const {fonts, renderPixels} = require('js-pixel-fonts');
+        const pixels = renderPixels(text, fonts.sevenPlus);
+        // Iterate through the pixels and add all the coffee cups
+        const pixelScale = 4
+        let index = 1;
+        // TODO - Fix the rate limiter
+        for (let yp = 0; yp < pixels.length; yp++) {
+            for (let xp = 0; xp < pixels[yp].length; xp++) {
+                if (pixels[yp][xp] === 0) continue;
+                // Fractional scaling cups
+                let t1 = setTimeout(() => {
+                    let xc = (x + xp / pixelScale)
+                    let yc = (y + yp / pixelScale)
+                    this.createCoffee(xc, yc)
+                    clearTimeout(t1);
+                }, 1000 * index)
+                index++;
+            }
+        }
+    }
+
+    async runGuestBadgeIssuerAndVerifier() {
+        let issuer = new GuestBadgeIssuer();
+        let proof = await issuer.issueGuestBadgeProof("4113", "4113@example.com", "green");
+        console.log('proof: ' + proof);
+
+        let verifier = new GuestBadgeVerifier();
+        await verifier.verifyGuestBadgeProof(proof);
+    }
+
+    mewmbaCleanupCoffee(mewmbaName: string, playerName: string) {
+        this.setJoinTrap(playerName, 1000, (player, id) => {
+            const mewmba = this.getMewmbaByName(mewmbaName);
+            const coffee = this.findCoffee()
+            mewmba.cleanupCoffee(coffee)
+        })
+    }
+
+    setRickRollTrap(playerName: string) {
+        this.setJoinTrap(playerName, 3000, (player, id) => {
+            this.rickroll(id)
+        })
+    }
+
+    mewmbaHarassTheIntern(mewmbaName: string, playerName: string) {
+        this.setJoinTrap(playerName, 1000, (player, id) => {
+            const mewmba = this.getMewmbaByName(mewmbaName);
+            mewmba.chasePlayer(playerName);
+            this.createNeonLight(1, 1, "violet")
+        })
     }
 }

@@ -1,6 +1,6 @@
-import {AccountService, AccountProfile, SignInRequest} from "@trinsic/trinsic";
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { deflateSync } from 'zlib';
+import {AccountService} from "@trinsic/trinsic";
 
 
 export function storeProfile(profile: string, filename: string) {
@@ -9,7 +9,7 @@ export function storeProfile(profile: string, filename: string) {
 
 export async function loadNewProfile(): Promise<string> {
     let accountService = new AccountService();
-    return (await accountService.signIn(new SignInRequest()));
+    return (await accountService.signIn());
 }
 
 export async function loadMewmbaProfile(): Promise<string> {
