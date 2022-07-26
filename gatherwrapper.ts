@@ -164,10 +164,10 @@ export class GatherWrapper {
         await verifier.verifyGuestBadgeProof(proof);
     }
 
-    async mewmbaCleanupCoffee(mewmbaName: string, playerName: string): Promise<void> {
+    async mewmbaCleanupCoffee(mewmbaName: string): Promise<void> {
         const mewmba = this.getMewmbaByName(mewmbaName);
         const coffee = this.findCoffee()
-        await mewmba.cleanupCoffee(coffee)
+        return mewmba.cleanupCoffee(coffee)
     }
 
     async setRickRollTrap(playerName: string): Promise<void> {

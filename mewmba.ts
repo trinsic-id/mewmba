@@ -49,10 +49,10 @@ export class Mewmba {
 
     async chasePlayer(name: string): Promise<void> {
         const path = this.computeRoute(this.wrapper.getPersonPoint(name));
-        await this.animateMovement(path, () => {
+        return this.animateMovement(path, () => {
             return this.computeRoute(this.wrapper.getPersonPoint(name));
         });
-        const point = this.wrapper.getPersonPoint(name)
+        // const point = this.wrapper.getPersonPoint(name)
         // this.createNeonLight(point.x + randomInt(-1, 1), point.y + randomInt(-1, 1), "red")
         // this.rickroll("")
     }
