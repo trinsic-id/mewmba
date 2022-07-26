@@ -22,7 +22,9 @@ const options = commandLineArgs(optionsDefinition);
 
 // gather wrapper client setup
 const game = new Game(gatherSpaceId(), () => Promise.resolve({apiKey: gatherApiKey()}));
-game.subscribeToConnection(connected => console.log("connected?", connected));
+game.subscribeToConnection(connected => {console.log("connected?", connected);
+    if (!connected) process.exit(1);
+});
 game.connect()?.then(async () => {
     await game.waitForInit()
     const myWrapper = new GatherWrapper(game)
