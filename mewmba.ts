@@ -1,8 +1,8 @@
-import {Game, MapObject, Point, WireObject} from "@gathertown/gather-game-client";
-import {GATHER_MAP_ID} from "./api-key";
+import {MapObject, Point, WireObject} from "@gathertown/gather-game-client";
 import PF from "pathfinding";
 import {randomInt} from "crypto";
 import {GatherWrapper} from "./gatherwrapper";
+import {gatherMapId} from "./util";
 
 type OnStepCallback = () => number[][];
 
@@ -62,11 +62,11 @@ export class Mewmba {
         const path = this.computeRoute({x: coffee.x, y: coffee.y});
         await this.animateMovement(path)
         // Remove the object
-        await this.wrapper.game.deleteObject(GATHER_MAP_ID, String(coffeeKey.key))
+        await this.wrapper.game.deleteObject(gatherMapId(), String(coffeeKey.key))
     }
 
     private downloadGrid(): PF.Grid {
-        const impassable = this.wrapper.game.completeMaps[GATHER_MAP_ID]?.collisions!
+        const impassable = this.wrapper.game.completeMaps[gatherMapId()]?.collisions!
         let passGrid: number[][] = [];
         for (let row = 0; row < impassable.length; row++) {
             passGrid[row] = []
@@ -110,7 +110,7 @@ export class Mewmba {
 
         console.log(objectUpdates)
         this.wrapper.game.engine.sendAction({
-            $case: "mapSetObjects", mapSetObjects: {mapId: GATHER_MAP_ID, objects: objectUpdates}
+            $case: "mapSetObjects", mapSetObjects: {mapId: gatherMapId(), objects: objectUpdates}
         })
 
         return true

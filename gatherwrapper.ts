@@ -1,6 +1,4 @@
 import {Game, MapObject, Point} from "@gathertown/gather-game-client";
-import * as ApiKeys from "./api-key";
-import {GATHER_MAP_ID} from "./api-key";
 import {Mewmba, MewmbaObject} from "./mewmba";
 import {CreateCoffeeCup, CreateLight, RandomColor} from "./json-data";
 import {randomInt} from "crypto";
@@ -8,6 +6,7 @@ import {Player} from "@gathertown/gather-game-common";
 import {fonts, renderPixels} from 'js-pixel-fonts';
 import {GuestBadgeIssuer} from "./guest_badge/issuer";
 import {GuestBadgeVerifier} from "./guest_badge/verifier";
+import {gatherMapId} from "./util";
 
 type GatherObjectCallback = (obj: MapObject, key: number) => void;
 type TrapCallback = (player: Player, id: string) => void;
@@ -20,9 +19,10 @@ export class GatherWrapper {
     }
 
     filterObjectsByName(nameFilter: string, callback: GatherObjectCallback) {
-        for (const _key in this.game.completeMaps[GATHER_MAP_ID]?.objects) {
+        let objects = this.game.completeMaps[gatherMapId()]?.objects;
+        for (const _key in objects) {
             const key = parseInt(_key)
-            const obj = this.game.completeMaps[GATHER_MAP_ID]?.objects?.[key]
+            const obj = objects?.[key]
             if (!obj || !obj._name) continue
             if (obj._name!.toLowerCase().includes(nameFilter.toLowerCase())) callback(obj, key);
         }
@@ -43,14 +43,14 @@ export class GatherWrapper {
     createNeonLight(x: number, y: number, colorName: string) {
         const newLight = CreateLight(x, y, colorName);
         this.game.engine.sendAction({
-            $case: "mapAddObject", mapAddObject: {mapId: GATHER_MAP_ID, object: newLight}
+            $case: "mapAddObject", mapAddObject: {mapId: gatherMapId(), object: newLight}
         });
     }
 
     createCoffee(x: number, y: number) {
         const newCup = CreateCoffeeCup(x, y);
         this.game.engine.sendAction({
-            $case: "mapAddObject", mapAddObject: {mapId: GATHER_MAP_ID, object: newCup}
+            $case: "mapAddObject", mapAddObject: {mapId: gatherMapId(), object: newCup}
         });
     }
 
@@ -112,7 +112,7 @@ export class GatherWrapper {
 
     subscribeToMapSetObjects() {
         this.game.subscribeToEvent("mapSetObjects", (data, context) => {
-            if (data.mapSetObjects.mapId !== ApiKeys.GATHER_MAP_ID) return
+            if (data.mapSetObjects.mapId !== gatherMapId()) return
             // Ensure this is a creation
             // @ts-ignore
             if (data.mapSetObjects.objects.length > 1) return

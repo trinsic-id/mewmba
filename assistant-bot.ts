@@ -1,5 +1,5 @@
-import {GATHER_MAP_ID} from "./api-key";
 import {GatherWrapper} from "./gatherwrapper";
+import {gatherMapId} from "./util";
 
 function isBase64(str: string) {
     try {
@@ -18,7 +18,7 @@ export class AssistantBot {
     }
 
     displayHelp(playerId: string) {
-        this.wrapper.game.chat(playerId, [], GATHER_MAP_ID, {contents: this.helpMessage});
+        this.wrapper.game.chat(playerId, [], gatherMapId(), {contents: this.helpMessage});
     }
 
     enableChatCommands() {
