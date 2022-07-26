@@ -8,12 +8,9 @@ on:
     branches:
       - main
 jobs:
-  chase_random_player:
-    name: Chase Random Player
+  wander:
+    name: Wander Around
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: web
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -23,11 +20,10 @@ jobs:
           cache: 'npm'
       - run: |
           npm install
-          npm run build
-          npm run test
-        name: "Mewmba Chase Player"
+          npm run wander
+        name: Mewmba Wander
         env:
-          TEST_SERVER_ENDPOINT: ${{ secrets.TEST_SERVER_ENDPOINT }}
-          TEST_SERVER_PORT: ${{ secrets.TEST_SERVER_PORT }}
-          TEST_SERVER_USE_TLS: ${{ secrets.TEST_SERVER_USE_TLS }}
+          GATHER_SPACE_ID: ${{ secrets.GATHER_SPACE_ID }}
+          GATHER_MAP_ID: ${{ secrets.GATHER_MAP_ID }}
+          GATHER_API_KEY: ${{ secrets.GATHER_API_KEY }}
         shell: pwsh

@@ -32,7 +32,7 @@ export class AssistantBot {
 
                             for (const id in this.wrapper.game.players) {
                                 if (this.wrapper.game.players[id].name.toLowerCase().includes(args[1].toLowerCase())) {
-                                    // console.log(id, game.players[id])
+                                    // console.log(id, wrapper.players[id])
                                     this.wrapper.rickroll(id);
                                 }
                             }

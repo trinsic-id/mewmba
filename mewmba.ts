@@ -2,16 +2,17 @@ import {Game, MapObject, Point, WireObject} from "@gathertown/gather-game-client
 import {GATHER_MAP_ID} from "./api-key";
 import PF from "pathfinding";
 import {randomInt} from "crypto";
+import {GatherWrapper} from "./gatherwrapper";
 
 type OnStepCallback = () => number[][];
 
 export class Mewmba {
-    game: Game;
+    wrapper: GatherWrapper;
     mapObject: MapObject
     key: number
 
-    constructor(game: Game, obj: MapObject, key: number) {
-        this.game = game
+    constructor(game: GatherWrapper, obj: MapObject, key: number) {
+        this.wrapper = game
         this.mapObject = obj
         this.key = key
     }
@@ -47,11 +48,11 @@ export class Mewmba {
     }
 
     async chasePlayer(name: string): Promise<void> {
-        const path = this.computeRoute(this.getPersonPoint(name));
-        let result = await this.animateMovement(path, () => {
-            return this.computeRoute(this.getPersonPoint(name));
+        const path = this.computeRoute(this.wrapper.getPersonPoint(name));
+        await this.animateMovement(path, () => {
+            return this.computeRoute(this.wrapper.getPersonPoint(name));
         });
-        const point = this.getPersonPoint(name)
+        const point = this.wrapper.getPersonPoint(name)
         // this.createNeonLight(point.x + randomInt(-1, 1), point.y + randomInt(-1, 1), "red")
         // this.rickroll("")
     }
@@ -61,11 +62,11 @@ export class Mewmba {
         const path = this.computeRoute({x: coffee.x, y: coffee.y});
         await this.animateMovement(path)
         // Remove the object
-        await this.game.deleteObject(GATHER_MAP_ID, String(coffeeKey.key))
+        await this.wrapper.game.deleteObject(GATHER_MAP_ID, String(coffeeKey.key))
     }
 
     private downloadGrid(): PF.Grid {
-        const impassable = this.game.completeMaps[GATHER_MAP_ID]?.collisions!
+        const impassable = this.wrapper.game.completeMaps[GATHER_MAP_ID]?.collisions!
         let passGrid: number[][] = [];
         for (let row = 0; row < impassable.length; row++) {
             passGrid[row] = []
@@ -108,7 +109,7 @@ export class Mewmba {
         this.mapObject.offsetY = fracY;
 
         console.log(objectUpdates)
-        this.game.engine.sendAction({
+        this.wrapper.game.engine.sendAction({
             $case: "mapSetObjects", mapSetObjects: {mapId: GATHER_MAP_ID, objects: objectUpdates}
         })
 

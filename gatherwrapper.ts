@@ -55,14 +55,17 @@ export class GatherWrapper {
     }
 
     getMewmbaByName(name: string): Mewmba {
+        if (name === "***RANDOM***") {
+            return this.getMewmba();
+        }
         const mobj = this.listMewmbas().filter(value => value.name.toLowerCase().includes(name))[0];
-        return new Mewmba(this.game, mobj.obj, mobj.key);
+        return new Mewmba(this, mobj.obj, mobj.key);
     }
 
     getMewmba(): Mewmba {
         const mewmbas = this.listMewmbas()
         const mobj = mewmbas[randomInt(mewmbas.length)]
-        return new Mewmba(this.game, mobj.obj, mobj.key);
+        return new Mewmba(this, mobj.obj, mobj.key);
     }
 
     playJaws(playerId: string) {
@@ -115,8 +118,7 @@ export class GatherWrapper {
             if (data.mapSetObjects.objects.length > 1) return
             for (const dataKey in data.mapSetObjects.objects) {
                 const dataObject = data.mapSetObjects.objects[dataKey]
-                if (dataObject._name?.startsWith("To-Go Coffee"))
-                    console.log("Coffee needs ordered!")
+                if (dataObject._name?.startsWith("To-Go Coffee")) console.log("Coffee needs ordered!")
             }
         })
     }
@@ -183,6 +185,7 @@ export class GatherWrapper {
     }
 
     getRandomPlayer(): string {
-        randomInt(length(this.game.players))
+        const players = Object.values(this.game.players)
+        return players[randomInt(0, players.length)].name
     }
 }
