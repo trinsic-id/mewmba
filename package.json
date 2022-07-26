@@ -5,7 +5,8 @@
   "main": "index.ts",
   "scripts": {
     "chase": "ts-node index.ts --chase --player \"***RANDOM***\" --mewmba phillis --mewmba green",
-    "wander": "ts-node index.ts --wander --mewmba \"***RANDOM***\""
+    "wander": "ts-node index.ts --wander --mewmba \"***RANDOM***\"",
+    "cleanup": "ts-node index.ts --cleanup --mewmba \"black\""
   },
   "repository": {
     "type": "git",

@@ -77,10 +77,11 @@ export class GatherWrapper {
         this.game.playSound("https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Never+Gonna+Give+You+Up-+Original&filename=mz/Mzg1ODMxNTIzMzg1ODM3_JzthsfvUY24.MP3", 0.5, playerId)
     }
 
-    findCoffee(): { obj: MapObject; key: number } {
+    findCoffee(): { obj: MapObject; key: number } | undefined {
         // Find a random coffee cup, and go vacuum it up
         let coffees: { obj: MapObject, key: number }[] = []
         this.filterObjectsByName("To-Go Coffee", (obj, key) => coffees.push({obj, key}))
+        if (coffees.length ===0) return undefined
         return coffees[randomInt(coffees.length)]
     }
 
@@ -164,10 +165,11 @@ export class GatherWrapper {
         await verifier.verifyGuestBadgeProof(proof);
     }
 
-    async mewmbaCleanupCoffee(mewmbaName: string, playerName: string): Promise<void> {
+    async mewmbaCleanupCoffee(mewmbaName: string): Promise<void> {
         const mewmba = this.getMewmbaByName(mewmbaName);
         const coffee = this.findCoffee()
-        await mewmba.cleanupCoffee(coffee)
+        if (coffee === undefined) return;
+        return mewmba.cleanupCoffee(coffee)
     }
 
     async setRickRollTrap(playerName: string): Promise<void> {

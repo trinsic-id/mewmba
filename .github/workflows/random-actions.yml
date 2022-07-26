@@ -27,3 +27,23 @@ jobs:
           GATHER_MAP_ID: ${{ secrets.GATHER_MAP_ID }}
           GATHER_API_KEY: ${{ secrets.GATHER_API_KEY }}
         shell: pwsh
+
+  cleanup:
+    name: Clean up Trash
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        name: Setup Node v16
+        with:
+          node-version: 16
+          cache: 'npm'
+      - run: |
+          npm install
+          npm run cleanup
+        name: Mewmba Wander
+        env:
+          GATHER_SPACE_ID: ${{ secrets.GATHER_SPACE_ID }}
+          GATHER_MAP_ID: ${{ secrets.GATHER_MAP_ID }}
+          GATHER_API_KEY: ${{ secrets.GATHER_API_KEY }}
+        shell: pwsh

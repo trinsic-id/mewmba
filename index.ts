@@ -6,14 +6,15 @@ import {gatherApiKey, gatherSpaceId} from "./util";
 global.WebSocket = require("isomorphic-ws");
 
 const optionsDefinition: OptionDefinition[] = [
-    {name: "chase", alias:'c',type: Boolean},
-    {name: "move", alias:'m',type: Boolean},
-    {name: "rickroll", alias:'r',type: Boolean},
-    {name: "wander", alias:'w',type: Boolean},
+    {name: "chase", type: Boolean},
+    {name: "cleanup", type: Boolean},
+    {name: "move", type: Boolean},
+    {name: "rickroll", type: Boolean},
+    {name: "wander", type: Boolean},
 
-    {name: "player", alias:'p',type: String},
-    {name: "location_x", alias:'x',type: Number},
-    {name: "location_y", alias:'y',type: Number},
+    {name: "player",type: String},
+    {name: "location_x", type: Number},
+    {name: "location_y", type: Number},
     {name: "mewmba", type: String, multiple: true},
 ]
 
@@ -41,6 +42,9 @@ game.connect()?.then(async () => {
         }
         if (options.wander) {
             mewmbas.push(myMewmba.routeToPoint(myMewmba.getRandomPoint()))
+        }
+        if (options.cleanup) {
+            mewmbas.push(myWrapper.mewmbaCleanupCoffee(myMewmbaName as string))
         }
         // TODO - Add other commands here
     }
