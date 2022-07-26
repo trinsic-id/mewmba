@@ -1,29 +1,65 @@
-import * as ApiKeys from "./api-key";
 import {Game} from "@gathertown/gather-game-client";
 import {GatherWrapper} from "./gatherwrapper";
-import {pointFromArray} from "./mewmba";
-
+import commandLineArgs, {OptionDefinition} from "command-line-args"
+import {gatherApiKey, gatherSpaceId} from "./util";
 
 global.WebSocket = require("isomorphic-ws");
 
-// gather game client setup
-const game = new Game(ApiKeys.GATHER_SPACE_ID, () => Promise.resolve({apiKey: ApiKeys.GATHER_API_KEY}));
-game.connect()?.then(value => {
-    game.waitForInit().then(value1 => {
-        const myWrapper = new GatherWrapper(game)
+const optionsDefinition: OptionDefinition[] = [
+    {name: "chase", alias:'c',type: Boolean},
+    {name: "move", alias:'m',type: Boolean},
+    {name: "rickroll", alias:'r',type: Boolean},
+    {name: "wander", alias:'w',type: Boolean},
 
-        myWrapper.printMewmbaList()
-        let myMewmba = myWrapper.getMewmbaByName("4113");
-        myMewmba.routeToPoint(pointFromArray([8, 8]));
-    });
+    {name: "player", alias:'p',type: String},
+    {name: "location_x", alias:'x',type: Number},
+    {name: "location_y", alias:'y',type: Number},
+    {name: "mewmba", type: String, multiple: true},
+]
+
+const options = commandLineArgs(optionsDefinition);
+
+// gather wrapper client setup
+const game = new Game(gatherSpaceId(), () => Promise.resolve({apiKey: gatherApiKey()}));
+game.subscribeToConnection(connected => console.log("connected?", connected));
+game.connect()?.then(async () => {
+    await game.waitForInit()
+    const myWrapper = new GatherWrapper(game)
+
+    if (options.player === "***RANDOM***") {
+        options.player = myWrapper.getRandomPlayer();
+    }
+
+    let mewmbas: Promise<void>[] = [];
+    for (const myMewmbaName of options.mewmba) {
+        let myMewmba = myWrapper.getMewmbaByName(myMewmbaName as string)
+        if (options.chase) {
+            mewmbas.push(myMewmba.chasePlayer(options.player));
+        }
+        if (options.rickroll) {
+            mewmbas.push(myWrapper.setRickRollTrap(options.player));
+        }
+        if (options.wander) {
+            mewmbas.push(myMewmba.routeToPoint(myMewmba.getRandomPoint()))
+        }
+        // TODO - Add other commands here
+    }
+
+    // Await all
+    for (const m of mewmbas) {
+        await m;
+    }
+
+    game.disconnect();
+    return;
 });
 
-// game.subscribeToConnection(connected => console.log("connected?", connected));
+
 // subscribeToMapSetObjects();
-// game.subscribeToEvent("playerChats", (data, context) => {
+// wrapper.subscribeToEvent("playerChats", (data, context) => {
 //     console.log(data, context)
 // })
-// game.subscribeToEvent("playerInteracts", (data, context) => {
+// wrapper.subscribeToEvent("playerInteracts", (data, context) => {
 //     console.log(data, context)
 // })
 

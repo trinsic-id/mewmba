@@ -1,31 +1,20 @@
-import {Game, MapObject, Point, WireObject} from "@gathertown/gather-game-client";
-import {GATHER_MAP_ID} from "./api-key";
+import {MapObject, Point, WireObject} from "@gathertown/gather-game-client";
 import PF from "pathfinding";
 import {randomInt} from "crypto";
+import {GatherWrapper} from "./gatherwrapper";
+import {gatherMapId} from "./util";
 
 type OnStepCallback = () => number[][];
-type OnStopCallback = () => void;
 
 export class Mewmba {
-    game: Game;
+    wrapper: GatherWrapper;
     mapObject: MapObject
     key: number
 
-    constructor(game: Game, obj: MapObject, key: number) {
-        this.game = game
+    constructor(game: GatherWrapper, obj: MapObject, key: number) {
+        this.wrapper = game
         this.mapObject = obj
         this.key = key
-    }
-
-    private downloadGrid(): PF.Grid {
-        const impassable = this.game.completeMaps[GATHER_MAP_ID]?.collisions!
-        let passGrid: number[][] = [];
-        for (let row = 0; row < impassable.length; row++) {
-            passGrid[row] = []
-            for (let col = 0; col < impassable[0].length; col++)
-                passGrid[row][col] = Number(impassable[row][col])
-        }
-        return new PF.Grid(passGrid);
     }
 
     computeRoute(target: Point): number[][] {
@@ -41,17 +30,6 @@ export class Mewmba {
         return path;
     }
 
-    getPersonPoint(name: String): Point {
-        // Make it pick a person.
-        for (const playerKey in this.game.players) {
-            const player = this.game.getPlayer(playerKey)!;
-            if (player.name.toLowerCase().includes(name.toLowerCase())) {
-                return {x: player.x, y: player.y}
-            }
-        }
-        throw Error
-    }
-
     getRandomPoint(): Point {
         const grid = this.downloadGrid()
         let targetX: number = 0
@@ -59,10 +37,42 @@ export class Mewmba {
         while (true) {
             targetX = randomInt(0, grid.width);
             targetY = randomInt(0, grid.height);
-            if (grid.isWalkableAt(targetX, targetY))
-                break;
+            if (grid.isWalkableAt(targetX, targetY)) break;
         }
         return {x: targetX, y: targetY};
+    }
+
+    async routeToPoint(target: Point): Promise<void> {
+        const path = this.computeRoute(target);
+        await this.animateMovement(path, undefined);
+    }
+
+    async chasePlayer(name: string): Promise<void> {
+        const path = this.computeRoute(this.wrapper.getPersonPoint(name));
+        await this.animateMovement(path, () => {
+            return this.computeRoute(this.wrapper.getPersonPoint(name));
+        });
+        const point = this.wrapper.getPersonPoint(name)
+        // this.createNeonLight(point.x + randomInt(-1, 1), point.y + randomInt(-1, 1), "red")
+        // this.rickroll("")
+    }
+
+    async cleanupCoffee(coffeeKey: { obj: MapObject; key: number }): Promise<void> {
+        const coffee = coffeeKey.obj
+        const path = this.computeRoute({x: coffee.x, y: coffee.y});
+        await this.animateMovement(path)
+        // Remove the object
+        await this.wrapper.game.deleteObject(gatherMapId(), String(coffeeKey.key))
+    }
+
+    private downloadGrid(): PF.Grid {
+        const impassable = this.wrapper.game.completeMaps[gatherMapId()]?.collisions!
+        let passGrid: number[][] = [];
+        for (let row = 0; row < impassable.length; row++) {
+            passGrid[row] = []
+            for (let col = 0; col < impassable[0].length; col++) passGrid[row][col] = Number(impassable[row][col])
+        }
+        return new PF.Grid(passGrid);
     }
 
     private moveTowardsPoint(target: Point): boolean {
@@ -75,8 +85,7 @@ export class Mewmba {
         const dx = target.x - (roomba.x + roomba.offsetX! / pixelSize);
         const dy = target.y - (roomba.y + roomba.offsetY! / pixelSize);
 
-        if (Math.abs(dx) < 1.0 / pixelSize && Math.abs(dy) < 1.0 / pixelSize)
-            return false
+        if (Math.abs(dx) < 1.0 / pixelSize && Math.abs(dy) < 1.0 / pixelSize) return false
 
         const theta = Math.atan2(dy, dx);
         // Compute speed adjusted step
@@ -90,11 +99,7 @@ export class Mewmba {
         const fracX = Math.floor(pixelSize * (newX - baseX))
         const fracY = Math.floor(pixelSize * (newY - baseY))
         objectUpdates[this.key] = {
-            x: baseX,
-            y: baseY,
-            offsetX: fracX,
-            offsetY: fracY,
-            _tags: []
+            x: baseX, y: baseY, offsetX: fracX, offsetY: fracY, _tags: []
         }
 
         // Update the local cached mewmba instance
@@ -104,59 +109,35 @@ export class Mewmba {
         this.mapObject.offsetY = fracY;
 
         console.log(objectUpdates)
-        this.game.engine.sendAction({
-            $case: "mapSetObjects",
-            mapSetObjects: {mapId: GATHER_MAP_ID, objects: objectUpdates}
+        this.wrapper.game.engine.sendAction({
+            $case: "mapSetObjects", mapSetObjects: {mapId: gatherMapId(), objects: objectUpdates}
         })
 
         return true
     }
 
-    routeToPoint(target: Point) {
-        const path = this.computeRoute(target);
-        this.animateMovement(path, undefined, undefined);
-    }
-
-    private animateMovement(path: number[][], onstepCallback: OnStepCallback | undefined, onStop: OnStopCallback | undefined) {
+    private async animateMovement(path: number[][], onstepCallback?: OnStepCallback | undefined): Promise<void> {
         // Trigger the animation to it
+        if (path.length === 1) {
+            return;
+        }
         let pathStep = 1;
-        const stepTimer = setInterval(async () => {
-            if (!this.moveTowardsPoint(pointFromArray(path[pathStep]))) {
-                if (onstepCallback) {
-                    path = onstepCallback();
-                } else {
-                    pathStep++;
+        return await new Promise(resolve => {
+            const stepTimer: NodeJS.Timer = setInterval(async () => {
+                if (!this.moveTowardsPoint(pointFromArray(path[pathStep]))) {
+                    if (onstepCallback) {
+                        path = onstepCallback();
+                    } else {
+                        pathStep++;
+                    }
                 }
-            }
 
-            if (pathStep == path.length) {
-                clearInterval(stepTimer)
-                console.log("Mewmba parked")
-                if (onStop)
-                    onStop();
-            }
-        }, 100);
-    }
-
-    chasePlayer(name: string) {
-        const path = this.computeRoute(this.getPersonPoint(name));
-        this.animateMovement(path, () => {
-            return this.computeRoute(this.getPersonPoint(name));
-        }, () => {
-            const point = this.getPersonPoint(name)
-            // this.createNeonLight(point.x + randomInt(-1, 1), point.y + randomInt(-1, 1), "red")
-            // this.rickroll("")
+                if (pathStep == path.length) {
+                    clearInterval(stepTimer)
+                    resolve()
+                }
+            }, 100);
         });
-    }
-
-    cleanupCoffee(coffeeKey: { obj: MapObject; key: number }) {
-        const coffee = coffeeKey.obj
-        const path = this.computeRoute({x: coffee.x, y: coffee.y});
-        this.animateMovement(path, undefined, () => {
-            // Remove the object
-            this.game.deleteObject(GATHER_MAP_ID, String(coffeeKey.key))
-            let a = 1
-        })
     }
 }
 

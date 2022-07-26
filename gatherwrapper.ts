@@ -1,12 +1,12 @@
-import {Game, MapObject} from "@gathertown/gather-game-client";
-import {GATHER_MAP_ID} from "./api-key";
+import {Game, MapObject, Point} from "@gathertown/gather-game-client";
 import {Mewmba, MewmbaObject} from "./mewmba";
 import {CreateCoffeeCup, CreateLight, RandomColor} from "./json-data";
 import {randomInt} from "crypto";
 import {Player} from "@gathertown/gather-game-common";
-import * as ApiKeys from "./api-key";
+import {fonts, renderPixels} from 'js-pixel-fonts';
 import {GuestBadgeIssuer} from "./guest_badge/issuer";
 import {GuestBadgeVerifier} from "./guest_badge/verifier";
+import {gatherMapId} from "./util";
 
 type GatherObjectCallback = (obj: MapObject, key: number) => void;
 type TrapCallback = (player: Player, id: string) => void;
@@ -19,9 +19,10 @@ export class GatherWrapper {
     }
 
     filterObjectsByName(nameFilter: string, callback: GatherObjectCallback) {
-        for (const _key in this.game.completeMaps[GATHER_MAP_ID]?.objects) {
+        let objects = this.game.completeMaps[gatherMapId()]?.objects;
+        for (const _key in objects) {
             const key = parseInt(_key)
-            const obj = this.game.completeMaps[GATHER_MAP_ID]?.objects?.[key]
+            const obj = objects?.[key]
             if (!obj || !obj._name) continue
             if (obj._name!.toLowerCase().includes(nameFilter.toLowerCase())) callback(obj, key);
         }
@@ -42,26 +43,29 @@ export class GatherWrapper {
     createNeonLight(x: number, y: number, colorName: string) {
         const newLight = CreateLight(x, y, colorName);
         this.game.engine.sendAction({
-            $case: "mapAddObject", mapAddObject: {mapId: GATHER_MAP_ID, object: newLight}
+            $case: "mapAddObject", mapAddObject: {mapId: gatherMapId(), object: newLight}
         });
     }
 
     createCoffee(x: number, y: number) {
         const newCup = CreateCoffeeCup(x, y);
         this.game.engine.sendAction({
-            $case: "mapAddObject", mapAddObject: {mapId: GATHER_MAP_ID, object: newCup}
+            $case: "mapAddObject", mapAddObject: {mapId: gatherMapId(), object: newCup}
         });
     }
 
     getMewmbaByName(name: string): Mewmba {
+        if (name === "***RANDOM***") {
+            return this.getMewmba();
+        }
         const mobj = this.listMewmbas().filter(value => value.name.toLowerCase().includes(name))[0];
-        return new Mewmba(this.game, mobj.obj, mobj.key);
+        return new Mewmba(this, mobj.obj, mobj.key);
     }
 
     getMewmba(): Mewmba {
         const mewmbas = this.listMewmbas()
         const mobj = mewmbas[randomInt(mewmbas.length)]
-        return new Mewmba(this.game, mobj.obj, mobj.key);
+        return new Mewmba(this, mobj.obj, mobj.key);
     }
 
     playJaws(playerId: string) {
@@ -70,7 +74,7 @@ export class GatherWrapper {
 
     rickroll(playerId: string) {
         console.log("Rickroll time!")
-        this.game.playSound("https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Never+Gonna+Give+You+Up-+Original&filename=mz/Mzg1ODMxNTIzMzg1ODM3_JzthsfvUY24.MP3", 0.25, playerId)
+        this.game.playSound("https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Never+Gonna+Give+You+Up-+Original&filename=mz/Mzg1ODMxNTIzMzg1ODM3_JzthsfvUY24.MP3", 0.5, playerId)
     }
 
     findCoffee(): { obj: MapObject; key: number } {
@@ -80,35 +84,48 @@ export class GatherWrapper {
         return coffees[randomInt(coffees.length)]
     }
 
-    setJoinTrap(playerName: string, delay: number, callback: TrapCallback) {
-        this.game.subscribeToEvent("playerJoins", (data, context) => {
-            let t1 = setTimeout(async () => {
-                const player = this.game.getPlayer(context.playerId!)!
-                if (player.name.toLowerCase().includes(playerName.toLowerCase())) {
-                    clearTimeout(t1);
-                    callback(player, context.playerId!);
-                }
-            }, delay);
+    getPersonPoint(name: String): Point {
+        // Make it pick a person.
+        for (const playerKey in this.game.players) {
+            const player = this.game.getPlayer(playerKey)!;
+            if (player.name.toLowerCase().includes(name.toLowerCase())) {
+                return {x: player.x, y: player.y}
+            }
+        }
+        throw Error
+    }
+
+    async setJoinTrap(playerName: string, delay: number, callback: TrapCallback): Promise<void> {
+        return new Promise(resolve => {
+            this.game.subscribeToEvent("playerJoins", (data, context) => {
+                let t1 = setTimeout(async () => {
+                    const player = this.game.getPlayer(context.playerId!)!
+                    if (player.name.toLowerCase().includes(playerName.toLowerCase())) {
+                        clearTimeout(t1);
+                        callback(player, context.playerId!);
+                        resolve();
+                    }
+                }, delay);
+            });
         });
     }
 
     subscribeToMapSetObjects() {
         this.game.subscribeToEvent("mapSetObjects", (data, context) => {
-            if (data.mapSetObjects.mapId !== ApiKeys.GATHER_MAP_ID) return
-            // Ensure this is a create
+            if (data.mapSetObjects.mapId !== gatherMapId()) return
+            // Ensure this is a creation
             // @ts-ignore
             if (data.mapSetObjects.objects.length > 1) return
             for (const dataKey in data.mapSetObjects.objects) {
                 const dataObject = data.mapSetObjects.objects[dataKey]
-                if (dataObject._name?.startsWith("To-Go Coffee"))
-                    console.log("Coffee needs ordered!")
+                if (dataObject._name?.startsWith("To-Go Coffee")) console.log("Coffee needs ordered!")
             }
         })
     }
 
 
-    mewmbaSetUpDanceParty(mewmbaName: string, playerName: string) {
-        this.setJoinTrap(playerName, 1000, (player, id) => {
+    async mewmbaSetUpDanceParty(mewmbaName: string, playerName: string): Promise<void> {
+        return this.setJoinTrap(playerName, 1000, (player, id) => {
             const mewmba = this.getMewmbaByName(mewmbaName);
             // Range: (36,10) -> (45,20)
             mewmba.routeToPoint({x: 36, y: 10})
@@ -116,8 +133,8 @@ export class GatherWrapper {
         })
     }
 
-    printCoffeeCupImage(x: number, y: number, text: string) {
-        const {fonts, renderPixels} = require('js-pixel-fonts');
+    async printCoffeeCupImage(x: number, y: number, text: string): Promise<void> {
+
         const pixels = renderPixels(text, fonts.sevenPlus);
         // Iterate through the pixels and add all the coffee cups
         const pixelScale = 4
@@ -138,7 +155,7 @@ export class GatherWrapper {
         }
     }
 
-    async runGuestBadgeIssuerAndVerifier() {
+    async runGuestBadgeIssuerAndVerifier(): Promise<void> {
         let issuer = new GuestBadgeIssuer();
         let proof = await issuer.issueGuestBadgeProof("4113", "4113@example.com", "green");
         console.log('proof: ' + proof);
@@ -147,25 +164,28 @@ export class GatherWrapper {
         await verifier.verifyGuestBadgeProof(proof);
     }
 
-    mewmbaCleanupCoffee(mewmbaName: string, playerName: string) {
-        this.setJoinTrap(playerName, 1000, (player, id) => {
-            const mewmba = this.getMewmbaByName(mewmbaName);
-            const coffee = this.findCoffee()
-            mewmba.cleanupCoffee(coffee)
-        })
+    async mewmbaCleanupCoffee(mewmbaName: string, playerName: string): Promise<void> {
+        const mewmba = this.getMewmbaByName(mewmbaName);
+        const coffee = this.findCoffee()
+        await mewmba.cleanupCoffee(coffee)
     }
 
-    setRickRollTrap(playerName: string) {
-        this.setJoinTrap(playerName, 3000, (player, id) => {
+    async setRickRollTrap(playerName: string): Promise<void> {
+        return this.setJoinTrap(playerName, 3000, (player, id) => {
             this.rickroll(id)
         })
     }
 
-    mewmbaHarassTheIntern(mewmbaName: string, playerName: string) {
-        this.setJoinTrap(playerName, 1000, (player, id) => {
+    async mewmbaHarassTheIntern(mewmbaName: string, playerName: string): Promise<void> {
+        return this.setJoinTrap(playerName, 1000, (player, id) => {
             const mewmba = this.getMewmbaByName(mewmbaName);
             mewmba.chasePlayer(playerName);
             this.createNeonLight(1, 1, "violet")
         })
+    }
+
+    getRandomPlayer(): string {
+        const players = Object.values(this.game.players)
+        return players[randomInt(0, players.length)].name
     }
 }
