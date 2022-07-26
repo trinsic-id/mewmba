@@ -1,0 +1,33 @@
+name: "Random Mewmba Actions"
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+jobs:
+  chase_random_player:
+    name: Chase Random Player
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        name: Setup Node v16
+        with:
+          node-version: 16
+          cache: 'npm'
+      - run: |
+          npm install
+          npm run build
+          npm run test
+        name: "Mewmba Chase Player"
+        env:
+          TEST_SERVER_ENDPOINT: ${{ secrets.TEST_SERVER_ENDPOINT }}
+          TEST_SERVER_PORT: ${{ secrets.TEST_SERVER_PORT }}
+          TEST_SERVER_USE_TLS: ${{ secrets.TEST_SERVER_USE_TLS }}
+        shell: pwsh

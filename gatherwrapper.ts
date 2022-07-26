@@ -1,10 +1,11 @@
-import {Game, MapObject} from "@gathertown/gather-game-client";
+import {Game, MapObject, Point} from "@gathertown/gather-game-client";
+import * as ApiKeys from "./api-key";
 import {GATHER_MAP_ID} from "./api-key";
 import {Mewmba, MewmbaObject} from "./mewmba";
 import {CreateCoffeeCup, CreateLight, RandomColor} from "./json-data";
 import {randomInt} from "crypto";
 import {Player} from "@gathertown/gather-game-common";
-import * as ApiKeys from "./api-key";
+import {fonts, renderPixels} from 'js-pixel-fonts';
 import {GuestBadgeIssuer} from "./guest_badge/issuer";
 import {GuestBadgeVerifier} from "./guest_badge/verifier";
 
@@ -70,7 +71,7 @@ export class GatherWrapper {
 
     rickroll(playerId: string) {
         console.log("Rickroll time!")
-        this.game.playSound("https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Never+Gonna+Give+You+Up-+Original&filename=mz/Mzg1ODMxNTIzMzg1ODM3_JzthsfvUY24.MP3", 0.25, playerId)
+        this.game.playSound("https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Never+Gonna+Give+You+Up-+Original&filename=mz/Mzg1ODMxNTIzMzg1ODM3_JzthsfvUY24.MP3", 0.5, playerId)
     }
 
     findCoffee(): { obj: MapObject; key: number } {
@@ -80,22 +81,36 @@ export class GatherWrapper {
         return coffees[randomInt(coffees.length)]
     }
 
-    setJoinTrap(playerName: string, delay: number, callback: TrapCallback) {
-        this.game.subscribeToEvent("playerJoins", (data, context) => {
-            let t1 = setTimeout(async () => {
-                const player = this.game.getPlayer(context.playerId!)!
-                if (player.name.toLowerCase().includes(playerName.toLowerCase())) {
-                    clearTimeout(t1);
-                    callback(player, context.playerId!);
-                }
-            }, delay);
+    getPersonPoint(name: String): Point {
+        // Make it pick a person.
+        for (const playerKey in this.game.players) {
+            const player = this.game.getPlayer(playerKey)!;
+            if (player.name.toLowerCase().includes(name.toLowerCase())) {
+                return {x: player.x, y: player.y}
+            }
+        }
+        throw Error
+    }
+
+    async setJoinTrap(playerName: string, delay: number, callback: TrapCallback): Promise<void> {
+        return new Promise(resolve => {
+            this.game.subscribeToEvent("playerJoins", (data, context) => {
+                let t1 = setTimeout(async () => {
+                    const player = this.game.getPlayer(context.playerId!)!
+                    if (player.name.toLowerCase().includes(playerName.toLowerCase())) {
+                        clearTimeout(t1);
+                        callback(player, context.playerId!);
+                        resolve();
+                    }
+                }, delay);
+            });
         });
     }
 
     subscribeToMapSetObjects() {
         this.game.subscribeToEvent("mapSetObjects", (data, context) => {
             if (data.mapSetObjects.mapId !== ApiKeys.GATHER_MAP_ID) return
-            // Ensure this is a create
+            // Ensure this is a creation
             // @ts-ignore
             if (data.mapSetObjects.objects.length > 1) return
             for (const dataKey in data.mapSetObjects.objects) {
@@ -107,8 +122,8 @@ export class GatherWrapper {
     }
 
 
-    mewmbaSetUpDanceParty(mewmbaName: string, playerName: string) {
-        this.setJoinTrap(playerName, 1000, (player, id) => {
+    async mewmbaSetUpDanceParty(mewmbaName: string, playerName: string): Promise<void> {
+        return this.setJoinTrap(playerName, 1000, (player, id) => {
             const mewmba = this.getMewmbaByName(mewmbaName);
             // Range: (36,10) -> (45,20)
             mewmba.routeToPoint({x: 36, y: 10})
@@ -116,8 +131,8 @@ export class GatherWrapper {
         })
     }
 
-    printCoffeeCupImage(x: number, y: number, text: string) {
-        const {fonts, renderPixels} = require('js-pixel-fonts');
+    async printCoffeeCupImage(x: number, y: number, text: string): Promise<void> {
+
         const pixels = renderPixels(text, fonts.sevenPlus);
         // Iterate through the pixels and add all the coffee cups
         const pixelScale = 4
@@ -138,7 +153,7 @@ export class GatherWrapper {
         }
     }
 
-    async runGuestBadgeIssuerAndVerifier() {
+    async runGuestBadgeIssuerAndVerifier(): Promise<void> {
         let issuer = new GuestBadgeIssuer();
         let proof = await issuer.issueGuestBadgeProof("4113", "4113@example.com", "green");
         console.log('proof: ' + proof);
@@ -147,25 +162,27 @@ export class GatherWrapper {
         await verifier.verifyGuestBadgeProof(proof);
     }
 
-    mewmbaCleanupCoffee(mewmbaName: string, playerName: string) {
-        this.setJoinTrap(playerName, 1000, (player, id) => {
-            const mewmba = this.getMewmbaByName(mewmbaName);
-            const coffee = this.findCoffee()
-            mewmba.cleanupCoffee(coffee)
-        })
+    async mewmbaCleanupCoffee(mewmbaName: string, playerName: string): Promise<void> {
+        const mewmba = this.getMewmbaByName(mewmbaName);
+        const coffee = this.findCoffee()
+        await mewmba.cleanupCoffee(coffee)
     }
 
-    setRickRollTrap(playerName: string) {
-        this.setJoinTrap(playerName, 3000, (player, id) => {
+    async setRickRollTrap(playerName: string): Promise<void> {
+        return this.setJoinTrap(playerName, 3000, (player, id) => {
             this.rickroll(id)
         })
     }
 
-    mewmbaHarassTheIntern(mewmbaName: string, playerName: string) {
-        this.setJoinTrap(playerName, 1000, (player, id) => {
+    async mewmbaHarassTheIntern(mewmbaName: string, playerName: string): Promise<void> {
+        return this.setJoinTrap(playerName, 1000, (player, id) => {
             const mewmba = this.getMewmbaByName(mewmbaName);
             mewmba.chasePlayer(playerName);
             this.createNeonLight(1, 1, "violet")
         })
+    }
+
+    getRandomPlayer(): string {
+        randomInt(length(this.game.players))
     }
 }

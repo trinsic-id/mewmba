@@ -1,24 +1,55 @@
 import * as ApiKeys from "./api-key";
 import {Game} from "@gathertown/gather-game-client";
 import {GatherWrapper} from "./gatherwrapper";
-import {pointFromArray} from "./mewmba";
-
+import commandLineArgs, {OptionDefinition} from "command-line-args"
 
 global.WebSocket = require("isomorphic-ws");
 
+const optionsDefinition: OptionDefinition[] = [
+    {name: "chase", alias:'c',type: Boolean},
+    {name: "move", alias:'m',type: Boolean},
+    {name: "rickroll", alias:'r',type: Boolean},
+    {name: "player", alias:'p',type: String},
+    {name: "location_x", alias:'x',type: Number},
+    {name: "location_y", alias:'y',type: Number},
+    {name: "mewmba", type: String, multiple: true},
+]
+
+const options = commandLineArgs(optionsDefinition);
+
 // gather game client setup
 const game = new Game(ApiKeys.GATHER_SPACE_ID, () => Promise.resolve({apiKey: ApiKeys.GATHER_API_KEY}));
-game.connect()?.then(value => {
-    game.waitForInit().then(value1 => {
-        const myWrapper = new GatherWrapper(game)
+game.subscribeToConnection(connected => console.log("connected?", connected));
+game.connect()?.then(async () => {
+    await game.waitForInit()
+    const myWrapper = new GatherWrapper(game)
 
-        myWrapper.printMewmbaList()
-        let myMewmba = myWrapper.getMewmbaByName("4113");
-        myMewmba.routeToPoint(pointFromArray([8, 8]));
-    });
+    if (options.player === "***RANDOM***") {
+        options.player = myWrapper.getRandomPlayer();
+    }
+
+    let mewmbas: Promise<void>[] = [];
+    for (const myMewmbaName of options.mewmba) {
+        let myMewmba = myWrapper.getMewmbaByName(myMewmbaName as string)
+        if (options.chase) {
+            mewmbas.push(myMewmba.chasePlayer(options.player));
+        }
+        if (options.rickroll) {
+            mewmbas.push(myWrapper.setRickRollTrap(options.player));
+        }
+        // TODO - Add other commands here
+    }
+
+    // Await all
+    for (const m of mewmbas) {
+        await m;
+    }
+
+    game.disconnect();
+    return;
 });
 
-// game.subscribeToConnection(connected => console.log("connected?", connected));
+
 // subscribeToMapSetObjects();
 // game.subscribeToEvent("playerChats", (data, context) => {
 //     console.log(data, context)
