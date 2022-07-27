@@ -8,6 +8,7 @@ global.WebSocket = require("isomorphic-ws");
 const optionsDefinition: OptionDefinition[] = [
     {name: "chase", type: Boolean},
     {name: "cleanup", type: Boolean},
+    {name: "jaws", type: Boolean},
     {name: "move", type: Boolean},
     {name: "rickroll", type: Boolean},
     {name: "wander", type: Boolean},
@@ -41,6 +42,9 @@ game.connect()?.then(async () => {
         }
         if (options.rickroll) {
             mewmbas.push(myWrapper.setRickRollTrap(options.player));
+        }
+        if (options.jaws) {
+            mewmbas.push(myWrapper.setJawsTrap(options.player));
         }
         if (options.wander) {
             mewmbas.push(myMewmba.routeToPoint(myMewmba.getRandomPoint()))

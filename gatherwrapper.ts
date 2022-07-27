@@ -68,11 +68,11 @@ export class GatherWrapper {
         return new Mewmba(this, mobj.obj, mobj.key);
     }
 
-    playJaws(playerId: string) {
-        this.game.playSound("https://orangefreesounds.com/wp-content/uploads/2016/04/Jaws-theme-song.mp3", 0.3, playerId!)
+    playJaws(playerId: string | undefined) {
+        this.game.playSound("https://orangefreesounds.com/wp-content/uploads/2016/04/Jaws-theme-song.mp3", 0.5, playerId)
     }
 
-    rickroll(playerId: string) {
+    rickroll(playerId: string| undefined) {
         console.log("Rickroll time!")
         this.game.playSound("https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Never+Gonna+Give+You+Up-+Original&filename=mz/Mzg1ODMxNTIzMzg1ODM3_JzthsfvUY24.MP3", 0.5, playerId)
     }
@@ -175,6 +175,16 @@ export class GatherWrapper {
     async setRickRollTrap(playerName: string): Promise<void> {
         return this.setJoinTrap(playerName, 3000, (player, id) => {
             this.rickroll(id)
+        })
+    }
+
+    async setJawsTrap(playerName: string): Promise<void> {
+        if (playerName === "" || playerName === undefined) {
+            this.playJaws(undefined)
+            return Promise.resolve();
+        }
+        return this.setJoinTrap(playerName, 3000, (player, id) => {
+            this.playJaws(id)
         })
     }
 
