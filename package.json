@@ -27,6 +27,7 @@
   "dependencies": {
     "@gathertown/gather-game-client": "37.0.1",
     "@trinsic/trinsic": "1.8.0",
+    "@slack/bolt": "3.12.1",
     "command-line-args": "5.2.1",
     "isomorphic-ws": "5.0.0",
     "js-pixel-fonts": "1.6.0",
