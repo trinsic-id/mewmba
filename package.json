@@ -1,7 +1,7 @@
 {
   "name": "mewmba",
   "version": "0.1.0",
-  "description": "Trinsic's digital assistant for gather! A metaverse cat-on-a-roomba!",
+  "description": "Trinsic's digital assistant for gather! The metaverse cat-on-a-roomba!",
   "main": "index.ts",
   "scripts": {
     "chase": "ts-node index.ts --chase --player \"***RANDOM***\" --mewmba \"***RANDOM***\"",
@@ -14,15 +14,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fundthmcalculus/gathertown-desk-setup.git"
+    "url": "git+https://github.com/trinsic-id/mewmba.git"
   },
   "keywords": [],
   "author": "fundthmcalculus",
   "license": "Apache 2.0",
   "bugs": {
-    "url": "https://github.com/fundthmcalculus/gathertown-desk-setup/issues"
+    "url": "https://github.com/trinsic-id/mewmba/issues"
   },
-  "homepage": "https://github.com/fundthmcalculus/gathertown-desk-setup#readme",
+  "homepage": "https://github.com/trinsic-id/mewmba#readme",
   "dependencies": {
     "@gathertown/gather-game-client": "37.0.1",
     "@trinsic/trinsic": "1.8.0",
