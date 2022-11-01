@@ -6,16 +6,30 @@ import {Player} from "@gathertown/gather-game-common";
 import {fonts, renderPixels} from 'js-pixel-fonts';
 import {GuestBadgeIssuer} from "./guest_badge/issuer";
 import {GuestBadgeVerifier} from "./guest_badge/verifier";
-import {gatherMapId} from "./util";
+import {gatherApiKey, gatherMapId, gatherSpaceId} from "./util";
+import {debuglog} from "util";
 
 type GatherObjectCallback = (obj: MapObject, key: number) => void;
 type TrapCallback = (player: Player, id: string) => void;
 
 export class GatherWrapper {
     game: Game;
+    logger = debuglog('GatherWrapper');
 
-    constructor(game: Game) {
+    private constructor(game: Game) {
         this.game = game
+    }
+
+    static async createInstance(): Promise<GatherWrapper> {
+        global.WebSocket = require("isomorphic-ws");
+        const game = new Game(gatherSpaceId(), () => Promise.resolve({apiKey: gatherApiKey()}));
+        game.subscribeToConnection(connected => {console.log("connected?", connected);
+            if (!connected) process.exit(1);
+        });
+
+        await game.connect()
+        await game.waitForInit()
+        return new GatherWrapper(game)
     }
 
     filterObjectsByName(nameFilter: string, callback: GatherObjectCallback) {
@@ -73,7 +87,7 @@ export class GatherWrapper {
     }
 
     rickroll(playerId: string| undefined) {
-        console.log("Rickroll time!")
+        this.logger("Rickroll time!")
         this.game.playSound("https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Never+Gonna+Give+You+Up-+Original&filename=mz/Mzg1ODMxNTIzMzg1ODM3_JzthsfvUY24.MP3", 0.5, playerId)
     }
 
@@ -119,7 +133,9 @@ export class GatherWrapper {
             if (data.mapSetObjects.objects.length > 1) return
             for (const dataKey in data.mapSetObjects.objects) {
                 const dataObject = data.mapSetObjects.objects[dataKey]
-                if (dataObject._name?.startsWith("To-Go Coffee")) console.log("Coffee needs ordered!")
+                if (dataObject._name?.startsWith("To-Go Coffee")) {
+                    this.logger("Coffee needs ordered!")
+                }
             }
         })
     }
@@ -159,7 +175,7 @@ export class GatherWrapper {
     async runGuestBadgeIssuerAndVerifier(): Promise<void> {
         let issuer = new GuestBadgeIssuer();
         let proof = await issuer.issueGuestBadgeProof("4113", "4113@example.com", "green");
-        console.log('proof: ' + proof);
+        this.logger('proof: ' + proof);
 
         let verifier = new GuestBadgeVerifier();
         await verifier.verifyGuestBadgeProof(proof);
@@ -199,5 +215,9 @@ export class GatherWrapper {
     getRandomPlayer(): string {
         const players = Object.values(this.game.players)
         return players[randomInt(0, players.length)].name
+    }
+
+    disconnect() {
+        this.game.disconnect();
     }
 }

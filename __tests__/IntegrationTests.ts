@@ -1,28 +1,18 @@
 import {beforeAll, describe, it} from "@jest/globals";
-import {Game} from "@gathertown/gather-game-client";
-import {gatherApiKey, gatherSpaceId} from "../src/util";
 import {GatherWrapper} from "../src/gatherwrapper";
 
-let game: Game;
 let myWrapper: GatherWrapper;
 
-describe('mewmba basic functionality', function () {
+describe('mewmba basic functionality', () => {
     beforeAll(async () => {
-        // TODO - Refactor initialization of game
-        game = new Game(gatherSpaceId(), () => Promise.resolve({apiKey: gatherApiKey()}));
-        game.subscribeToConnection(connected => {console.log("connected?", connected);
-            // if (!connected) process.exit(1);
-        });
-        await game.connect()
-        await game.waitForInit()
-        myWrapper = new GatherWrapper(game)
+        myWrapper = await GatherWrapper.createInstance();
     });
-    it('should wander', async function () {
+    it('should wander', async () => {
         let myMewmba = myWrapper.getMewmbaByName('***RANDOM***');
         // TODO - Refactor an explicit wander method
-        await myMewmba.routeToPoint(myMewmba.getRandomPoint());
+        await myMewmba.routeToPoint(myMewmba.getRandomPoint(5));
     });
-    it('should clean up coffee', async function () {
-        await myWrapper.mewmbaCleanupCoffee('***RANDOM***')
-    })
+    // it('should clean up coffee', async () => {
+    //     await myWrapper.mewmbaCleanupCoffee('***RANDOM***')
+    // });
 });

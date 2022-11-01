@@ -21,14 +21,8 @@ const optionsDefinition: OptionDefinition[] = [
 
 const options = commandLineArgs(optionsDefinition);
 
-// gather wrapper client setup
-const game = new Game(gatherSpaceId(), () => Promise.resolve({apiKey: gatherApiKey()}));
-game.subscribeToConnection(connected => {console.log("connected?", connected);
-    if (!connected) process.exit(1);
-});
-game.connect()?.then(async () => {
-    await game.waitForInit()
-    const myWrapper = new GatherWrapper(game)
+GatherWrapper.createInstance().then(async (value: GatherWrapper) => {
+    const myWrapper = value;
 
     if (options.player === "***RANDOM***") {
         options.player = myWrapper.getRandomPlayer();
@@ -60,7 +54,7 @@ game.connect()?.then(async () => {
         await m;
     }
 
-    game.disconnect();
+    myWrapper.disconnect();
     return;
 });
 

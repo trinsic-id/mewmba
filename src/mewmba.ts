@@ -3,6 +3,7 @@ import PF from "pathfinding";
 import {randomInt} from "crypto";
 import {GatherWrapper} from "./gatherwrapper";
 import {gatherMapId} from "./util";
+import {debuglog} from "util";
 
 type OnStepCallback = () => number[][];
 
@@ -10,6 +11,7 @@ export class Mewmba {
     wrapper: GatherWrapper;
     mapObject: MapObject
     key: number
+    logger = debuglog('mewmba');
 
     constructor(game: GatherWrapper, obj: MapObject, key: number) {
         this.wrapper = game
@@ -26,18 +28,36 @@ export class Mewmba {
             diagonalMovement: PF.DiagonalMovement.Never,
         })
         const path = finder.findPath(roomba.x!, roomba.y!, target.x, target.y, grid);
-        console.log(path)
+        this.logger(`path: ${path}`);
         return path;
     }
 
-    getRandomPoint(): Point {
+    /**
+     *
+     * @param distance Manhattan distance from current mewmba location. -1 for arbitrary distance.
+     */
+    getRandomPoint(distance: number = -1): Point {
+
         const grid = this.downloadGrid()
         let targetX: number = 0
         let targetY: number = 0
+        // TODO - This does not necessarily halt.
         while (true) {
-            targetX = randomInt(0, grid.width);
-            targetY = randomInt(0, grid.height);
-            if (grid.isWalkableAt(targetX, targetY)) break;
+            if (distance < 0) {
+                targetX = randomInt(0, grid.width);
+                targetY = randomInt(0, grid.height);
+            } else {
+                const offsetX = randomInt(-distance,distance+1);
+                const offsetYbounds = distance-Math.abs(offsetX);
+                // Constrain y offset based on x-offset, to prevent euclidean 2*distance
+                const offsetY = randomInt(-offsetYbounds, offsetYbounds+1);
+                targetX = offsetX + this.mapObject.x;
+                targetY = offsetY + this.mapObject.y;
+            }
+            // Returns false outside bounds
+            if (grid.isWalkableAt(targetX, targetY)) {
+                break;
+            }
         }
         return {x: targetX, y: targetY};
     }
@@ -105,7 +125,7 @@ export class Mewmba {
         this.mapObject.offsetX = fracX;
         this.mapObject.offsetY = fracY;
 
-        console.log(objectUpdates)
+        this.logger(`Object updates=${objectUpdates}`)
         this.wrapper.game.engine.sendAction({
             $case: "mapSetObjects", mapSetObjects: {mapId: gatherMapId(), objects: objectUpdates}
         })

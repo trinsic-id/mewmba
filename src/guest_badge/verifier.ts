@@ -1,8 +1,10 @@
 import {CredentialService, ServiceOptions} from "@trinsic/trinsic";
 import {inflateSync} from 'zlib';
 import {loadMewmbaProfile} from './common';
+import {debuglog} from "util";
 
 export class GuestBadgeVerifier {
+    logger = debuglog('GuestBadgeVerifier');
 
     getDecodedDocument(encodedProofDocument: string): string {
         // decode a compressed/base64-encoded proof document
@@ -24,7 +26,7 @@ export class GuestBadgeVerifier {
         const credentialService = new CredentialService(ServiceOptions.fromPartial({authToken: mewmba}));
 
         let isVerified = await credentialService.verifyProof({proofDocumentJson: proofDocument});
-        console.log("[verify] isVerified: " + isVerified);
+        this.logger("[verify] isVerified: " + isVerified);
     }
 
 }
