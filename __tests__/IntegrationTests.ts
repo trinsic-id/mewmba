@@ -11,7 +11,7 @@ describe('mewmba basic functionality', function () {
         // TODO - Refactor initialization of game
         game = new Game(gatherSpaceId(), () => Promise.resolve({apiKey: gatherApiKey()}));
         game.subscribeToConnection(connected => {console.log("connected?", connected);
-            if (!connected) process.exit(1);
+            // if (!connected) process.exit(1);
         });
         await game.connect()
         await game.waitForInit()
