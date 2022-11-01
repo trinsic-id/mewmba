@@ -1,7 +1,7 @@
 import {Game} from "@gathertown/gather-game-client";
-import {GatherWrapper} from "./gatherwrapper";
+import {GatherWrapper} from "./src/gatherwrapper";
 import commandLineArgs, {OptionDefinition} from "command-line-args"
-import {gatherApiKey, gatherSpaceId} from "./util";
+import {gatherApiKey, gatherSpaceId} from "./src/util";
 
 global.WebSocket = require("isomorphic-ws");
 
