@@ -20,13 +20,13 @@
   },
   "homepage": "https://github.com/fundthmcalculus/gathertown-desk-setup#readme",
   "dependencies": {
-    "@gathertown/gather-game-client": "^37.0.1",
-    "@trinsic/trinsic": "^1.6.1-rc2",
-    "isomorphic-ws": "^5.0.0",
-    "js-pixel-fonts": "^1.5.0",
-    "pathfinding": "^0.4.18",
-    "long": "^5.2.0",
-    "command-line-args": "^5.2.1"
+    "@gathertown/gather-game-client": "37.0.1",
+    "@trinsic/trinsic": "1.8.0",
+    "isomorphic-ws": "5.0.0",
+    "js-pixel-fonts": "1.6.0",
+    "pathfinding": "0.4.18",
+    "long": "5.2.0",
+    "command-line-args": "5.2.1"
   },
   "devDependencies": {
     "@types/google-protobuf": "3.15.6",
@@ -34,6 +34,7 @@
     "@types/pathfinding": "0.0.6",
     "@types/command-line-args": "5.2.0",
     "typescript": "4.8.4",
-    "ts-node": "10.9.1"
+    "ts-node": "10.9.1",
+    "ts-jest": "29.0.3"
   }
 }
