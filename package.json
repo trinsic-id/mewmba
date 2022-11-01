@@ -1,40 +1,47 @@
 {
   "name": "mewmba",
   "version": "0.1.0",
-  "description": "Trinsic's digital assistant for gather! A metaverse cat-on-a-roomba!",
+  "description": "Trinsic's digital assistant for gather! The metaverse cat-on-a-roomba!",
   "main": "index.ts",
   "scripts": {
-    "chase": "ts-node index.ts --chase --player \"***RANDOM***\" --mewmba phillis --mewmba green",
+    "chase": "ts-node index.ts --chase --player \"***RANDOM***\" --mewmba \"***RANDOM***\"",
     "wander": "ts-node index.ts --wander --mewmba \"***RANDOM***\"",
-    "cleanup": "ts-node index.ts --cleanup --mewmba \"black\""
+    "cleanup": "ts-node index.ts --cleanup --mewmba \"black\"",
+    "jaws": "ts-node index.ts --jaws --mewmba \"black\"",
+    "test": "jest --watchAll=false",
+    "build": "tsc",
+    "prettier:check": "npx prettier --check ./src ./__tests__",
+    "prettier:write": "npx prettier --write ./src ./__tests__"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fundthmcalculus/gathertown-desk-setup.git"
+    "url": "git+https://github.com/trinsic-id/mewmba.git"
   },
   "keywords": [],
   "author": "fundthmcalculus",
   "license": "Apache 2.0",
   "bugs": {
-    "url": "https://github.com/fundthmcalculus/gathertown-desk-setup/issues"
+    "url": "https://github.com/trinsic-id/mewmba/issues"
   },
-  "homepage": "https://github.com/fundthmcalculus/gathertown-desk-setup#readme",
+  "homepage": "https://github.com/trinsic-id/mewmba#readme",
   "dependencies": {
     "@gathertown/gather-game-client": "37.0.1",
     "@trinsic/trinsic": "1.8.0",
+    "command-line-args": "5.2.1",
     "isomorphic-ws": "5.0.0",
     "js-pixel-fonts": "1.6.0",
-    "pathfinding": "0.4.18",
     "long": "5.2.0",
-    "command-line-args": "5.2.1"
+    "pathfinding": "0.4.18"
   },
   "devDependencies": {
+    "@types/command-line-args": "5.2.0",
     "@types/google-protobuf": "3.15.6",
+    "@types/jest": "29.2.1",
     "@types/node": "18.11.9",
     "@types/pathfinding": "0.0.6",
-    "@types/command-line-args": "5.2.0",
-    "typescript": "4.8.4",
+    "ts-jest": "29.0.3",
     "ts-node": "10.9.1",
-    "ts-jest": "29.0.3"
+    "typescript": "4.8.4",
+    "prettier": "2.7.1"
   }
 }

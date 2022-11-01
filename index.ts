@@ -8,6 +8,7 @@ global.WebSocket = require("isomorphic-ws");
 const optionsDefinition: OptionDefinition[] = [
     {name: "chase", type: Boolean},
     {name: "cleanup", type: Boolean},
+    {name: "jaws", type: Boolean},
     {name: "move", type: Boolean},
     {name: "rickroll", type: Boolean},
     {name: "wander", type: Boolean},
@@ -20,12 +21,8 @@ const optionsDefinition: OptionDefinition[] = [
 
 const options = commandLineArgs(optionsDefinition);
 
-// gather wrapper client setup
-const game = new Game(gatherSpaceId(), () => Promise.resolve({apiKey: gatherApiKey()}));
-game.subscribeToConnection(connected => console.log("connected?", connected));
-game.connect()?.then(async () => {
-    await game.waitForInit()
-    const myWrapper = new GatherWrapper(game)
+GatherWrapper.createInstance().then(async (value: GatherWrapper) => {
+    const myWrapper = value;
 
     if (options.player === "***RANDOM***") {
         options.player = myWrapper.getRandomPlayer();
@@ -39,6 +36,9 @@ game.connect()?.then(async () => {
         }
         if (options.rickroll) {
             mewmbas.push(myWrapper.setRickRollTrap(options.player));
+        }
+        if (options.jaws) {
+            mewmbas.push(myWrapper.setJawsTrap(options.player));
         }
         if (options.wander) {
             mewmbas.push(myMewmba.routeToPoint(myMewmba.getRandomPoint()))
@@ -54,7 +54,7 @@ game.connect()?.then(async () => {
         await m;
     }
 
-    game.disconnect();
+    myWrapper.disconnect();
     return;
 });
 
