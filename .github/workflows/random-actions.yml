@@ -8,6 +8,25 @@ on:
     branches:
       - main
 jobs:
+  verify_formatting:
+    name: Verify Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        name: Setup Node v16
+        with:
+          node-version: 16
+          cache: 'npm'
+      - name: Mewmba Test
+        run: |
+          npm ci
+          npx run prettier --check "src/
+        env:
+          GATHER_SPACE_ID: ${{ secrets.GATHER_SPACE_ID }}
+          GATHER_MAP_ID: ${{ secrets.GATHER_MAP_ID }}
+          GATHER_API_KEY: ${{ secrets.GATHER_API_KEY }}
+        shell: pwsh
   test:
     name: Basic Functionality
     runs-on: ubuntu-latest

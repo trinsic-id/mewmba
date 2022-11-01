@@ -8,9 +8,9 @@
     "wander": "ts-node index.ts --wander --mewmba \"***RANDOM***\"",
     "cleanup": "ts-node index.ts --cleanup --mewmba \"black\"",
     "jaws": "ts-node index.ts --jaws --mewmba \"black\"",
-    "test": "jest",
+    "test": "jest --watchAll=false --detectOpenHandles",
     "build": "tsc",
-    "prettier": "npx prettier ./src --write"
+    "prettier": "npx prettier --write ./src ./__tests__"
   },
   "repository": {
     "type": "git",
