@@ -10,7 +10,8 @@
     "jaws": "ts-node index.ts --jaws --mewmba \"black\"",
     "test": "jest --watchAll=false --detectOpenHandles",
     "build": "tsc",
-    "prettier": "npx prettier --write ./src ./__tests__"
+    "prettier:check": "npx prettier --check ./src ./__tests__",
+    "prettier:write": "npx prettier --write ./src ./__tests__"
   },
   "repository": {
     "type": "git",
