@@ -25,9 +25,9 @@ export class GatherWrapper {
     const game = new Game(gatherSpaceId(), () =>
       Promise.resolve({ apiKey: gatherApiKey() })
     );
-    game.subscribeToConnection((connected) => {
-      console.log("connected?", connected);
-    });
+    // game.subscribeToConnection((connected) => {
+    //   console.log("connected?", connected);
+    // });
 
     await game.connect();
     await game.waitForInit();
