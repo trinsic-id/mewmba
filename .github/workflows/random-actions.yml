@@ -21,7 +21,7 @@ jobs:
       - name: Mewmba Test
         run: |
           npm ci
-          npm prettier:check
+          npm run prettier:check
         env:
           GATHER_SPACE_ID: ${{ secrets.GATHER_SPACE_ID }}
           GATHER_MAP_ID: ${{ secrets.GATHER_MAP_ID }}
