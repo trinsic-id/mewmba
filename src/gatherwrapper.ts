@@ -40,16 +40,16 @@ export class GatherWrapper {
         }
     }
 
-    createNeonLight(x: number, y: number, colorName: string) {
+    async createNeonLight(x: number, y: number, colorName: string) {
         const newLight = CreateLight(x, y, colorName);
-        this.game.engine.sendAction({
+        await this.game.engine.sendAction({
             $case: "mapAddObject", mapAddObject: {mapId: gatherMapId(), object: newLight}
         });
     }
 
-    createCoffee(x: number, y: number) {
+    async createCoffee(x: number, y: number) {
         const newCup = CreateCoffeeCup(x, y);
-        this.game.engine.sendAction({
+        await this.game.engine.sendAction({
             $case: "mapAddObject", mapAddObject: {mapId: gatherMapId(), object: newCup}
         });
     }
@@ -126,12 +126,12 @@ export class GatherWrapper {
 
 
     async mewmbaSetUpDanceParty(mewmbaName: string, playerName: string): Promise<void> {
-        return this.setJoinTrap(playerName, 1000, (player, id) => {
+        return this.setJoinTrap(playerName, 1000, async (player, id) => {
             const mewmba = this.getMewmbaByName(mewmbaName);
             // Range: (36,10) -> (45,20)
             mewmba.routeToPoint({x: 36, y: 10})
-            this.createNeonLight(randomInt(36, 45), randomInt(10, 20), RandomColor())
-        })
+            await this.createNeonLight(randomInt(36, 45), randomInt(10, 20), RandomColor())
+        });
     }
 
     async printCoffeeCupImage(x: number, y: number, text: string): Promise<void> {

@@ -14,7 +14,11 @@
     ]
   },
   "include": [
-    "./**/*.ts"
+    "./src/**/*.ts",
+    "*.ts"
+  ],
+  "exclude": [
+    "__tests__"
   ],
   "references": []
 }

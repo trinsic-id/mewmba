@@ -1,6 +1,12 @@
 import {randomInt, randomUUID} from "crypto";
+import {WireObject} from "@gathertown/gather-game-common/src/generated_DO_NOT_TOUCH/events";
 
-export function CreateLight(x: number, y: number, colorName: string) {
+type LightUrls = {
+    normal: string
+    highlighted: string
+}
+
+export function CreateLight(x: number, y: number, colorName: string): WireObject {
     const lightId = "fQUHe3C1UWtUbqRu_SpNX"
     const {normal: normalUrl, highlighted: highlightUrl} = getLightImageByColor(colorName)
     return {
@@ -18,12 +24,11 @@ export function CreateLight(x: number, y: number, colorName: string) {
         "width": 1,
         "height": 2,
         "id": `NeonLightCircle - ${lightId}_{randomUUID()}`,
-        "_tags": [],
-        "properties": {}
+        "_tags": []
     };
 }
 
-export function CreateCoffeeCup(x: number, y: number) {
+export function CreateCoffeeCup(x: number, y: number): WireObject {
     return {
         "_tags": [
             "flair",
@@ -45,17 +50,16 @@ export function CreateCoffeeCup(x: number, y: number) {
         "type": 0,
         "width": 1,
         "height": 1,
-        "id": `ToGoCoffee - eFynd1wtJVeD5aLmLNtBk_${randomUUID()}`,
-        "properties": {}
+        "id": `ToGoCoffee - eFynd1wtJVeD5aLmLNtBk_${randomUUID()}`
     }
 }
 
-export function RandomColor() {
+export function RandomColor(): string {
     const colors = ["red", "orange", "yellow","green","blue","indigo","violet","pink"]
     return colors[randomInt(colors.length)]
 }
 
-function getLightImageByColor(colorName: string): { normal: string, highlighted: string } {
+function getLightImageByColor(colorName: string): LightUrls {
     switch (colorName.toLowerCase()) {
         case "violet":
             return {
