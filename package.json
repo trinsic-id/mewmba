@@ -9,7 +9,7 @@
     "wander": "ts-node index.ts --wander --mewmba \"***RANDOM***\"",
     "cleanup": "ts-node index.ts --cleanup --mewmba \"black\"",
     "jaws": "ts-node index.ts --jaws --mewmba \"black\"",
-    "test": "jest --watchAll=false --detectOpenHandles",
+    "test": "jest --watchAll=false",
     "build": "tsc",
     "prettier:check": "npx prettier --check ./src ./__tests__",
     "prettier:write": "npx prettier --write ./src ./__tests__",
