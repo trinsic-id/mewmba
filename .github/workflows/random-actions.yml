@@ -17,26 +17,23 @@ jobs:
         name: Setup Node v16
         with:
           node-version: 16
-          cache: 'npm'
+          cache: "npm"
       - name: Mewmba Test
         run: |
           npm ci
           npm run prettier:check
-        env:
-          GATHER_SPACE_ID: ${{ secrets.GATHER_SPACE_ID }}
-          GATHER_MAP_ID: ${{ secrets.GATHER_MAP_ID }}
-          GATHER_API_KEY: ${{ secrets.GATHER_API_KEY }}
         shell: pwsh
   test:
     name: Basic Functionality
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         name: Setup Node v16
         with:
           node-version: 16
-          cache: 'npm'
+          cache: "npm"
       - name: Mewmba Test
         run: |
           npm ci
@@ -45,4 +42,7 @@ jobs:
           GATHER_SPACE_ID: ${{ secrets.GATHER_SPACE_ID }}
           GATHER_MAP_ID: ${{ secrets.GATHER_MAP_ID }}
           GATHER_API_KEY: ${{ secrets.GATHER_API_KEY }}
+          SLACK_BOT_USER_OAUTH_TOKEN: ${{ secrets.SLACK_BOT_USER_OAUTH_TOKEN }}
+          SLACK_SOCKET_TOKEN: ${{ secrets.SLACK_SOCKET_TOKEN }}
+          GITHUB_PAT: ${{ secrets.GITHUB_PAT }}
         shell: pwsh

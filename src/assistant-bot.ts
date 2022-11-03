@@ -4,7 +4,8 @@ import { debuglog } from "util";
 
 function isBase64(str: string) {
   try {
-    return btoa(atob(str)) == str;
+    Buffer.from(str, "base64");
+    return true;
   } catch (err) {
     return false;
   }
@@ -12,7 +13,7 @@ function isBase64(str: string) {
 
 export class AssistantBot {
   wrapper: GatherWrapper;
-  helpMessage: string =
+  helpMessage =
     "Enter /help for this list of commands:\n/rickroll <Name> to rickroll someone\n/verify <code> to verify your credential code sent to your email";
   logger = debuglog("AssistantBot");
 
@@ -29,7 +30,7 @@ export class AssistantBot {
   enableChatCommands() {
     this.wrapper.game.subscribeToEvent("playerChats", (data, context) => {
       if (data.playerChats.contents.toLowerCase()[0] === "/") {
-        let args = data.playerChats.contents
+        const args = data.playerChats.contents
           .split(/(\s+)/)
           .filter((arg) => !arg.match(/(\s+)/));
         this.logger(`Args=${args}`);

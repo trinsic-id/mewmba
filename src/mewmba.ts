@@ -42,10 +42,10 @@ export class Mewmba {
    *
    * @param distance Manhattan distance from current mewmba location. -1 for arbitrary distance.
    */
-  getRandomPoint(distance: number = -1): Point {
+  getRandomPoint(distance = -1): Point {
     const grid = this.downloadGrid();
-    let targetX: number = 0;
-    let targetY: number = 0;
+    let targetX = 0;
+    let targetY = 0;
     // TODO - This does not necessarily halt.
     while (true) {
       if (distance < 0) {
@@ -69,7 +69,11 @@ export class Mewmba {
 
   async routeToPoint(target: Point): Promise<void> {
     const path = this.computeRoute(target);
-    await this.animateMovement(path, undefined);
+    return this.animateMovement(path, undefined);
+  }
+
+  async wander(distance: number = -1): Promise<void> {
+    return this.routeToPoint(this.getRandomPoint(distance));
   }
 
   async chasePlayer(name: string): Promise<void> {
@@ -93,7 +97,7 @@ export class Mewmba {
   private downloadGrid(): PF.Grid {
     const impassable =
       this.wrapper.game.completeMaps[gatherMapId()]?.collisions!;
-    let passGrid: number[][] = [];
+    const passGrid: number[][] = [];
     for (let row = 0; row < impassable.length; row++) {
       passGrid[row] = [];
       for (let col = 0; col < impassable[0].length; col++)
@@ -158,8 +162,8 @@ export class Mewmba {
       return;
     }
     let pathStep = 1;
-    return await new Promise((resolve) => {
-      const stepTimer: NodeJS.Timer = setInterval(async () => {
+    return new Promise((resolve) => {
+      const stepTimer: NodeJS.Timer = setInterval(() => {
         if (!this.moveTowardsPoint(pointFromArray(path[pathStep]))) {
           if (onstepCallback) {
             path = onstepCallback();
@@ -170,6 +174,7 @@ export class Mewmba {
 
         if (pathStep == path.length) {
           clearInterval(stepTimer);
+          stepTimer.unref();
           resolve();
         }
       }, 100);
@@ -183,8 +188,8 @@ export function pointFromArray(pt: number[]): Point {
 
 export class MewmbaObject {
   obj: MapObject;
-  key: number = 0;
-  name: string = "";
+  key = 0;
+  name = "";
 
   constructor(obj: MapObject, key: number, name: string) {
     this.obj = obj;

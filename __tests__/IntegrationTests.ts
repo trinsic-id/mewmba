@@ -9,13 +9,15 @@ describe("mewmba basic functionality", () => {
   });
   it("should wander", async () => {
     let myMewmba = myWrapper.getMewmbaByName("***RANDOM***");
-    // TODO - Refactor an explicit wander method
-    await myMewmba.routeToPoint(myMewmba.getRandomPoint(5));
+    await myMewmba.wander(5);
+  });
+  it("should print list of mewmbas", () => {
+    myWrapper.printMewmbaList();
   });
   // it('should clean up coffee', async () => {
   //     await myWrapper.mewmbaCleanupCoffee('***RANDOM***')
   // });
-  afterAll(async () => {
+  afterAll(() => {
     myWrapper.disconnect();
   });
 });

@@ -8,6 +8,7 @@ import { GuestBadgeIssuer } from "./guest_badge/issuer";
 import { GuestBadgeVerifier } from "./guest_badge/verifier";
 import { gatherApiKey, gatherMapId, gatherSpaceId } from "./util";
 import { debuglog } from "util";
+import { SlackIntegration } from "./slack/SlackIntegration";
 
 type GatherObjectCallback = (obj: MapObject, key: number) => void;
 type TrapCallback = (player: Player, id: string) => void;
@@ -15,9 +16,21 @@ type TrapCallback = (player: Player, id: string) => void;
 export class GatherWrapper {
   game: Game;
   logger = debuglog("GatherWrapper");
+  slack: SlackIntegration;
 
   private constructor(game: Game) {
     this.game = game;
+    this.slack = new SlackIntegration();
+    this.game.subscribeToEvent("playerJoins", async (data, context) => {
+      // Delay for 5 seconds to allow everything to populate
+      const t1 = setTimeout(async () => {
+        const player = this.game.getPlayer(context.playerId!)!;
+        await this.slack.postMessage(
+          `${player?.name} joined gather at ${player.map} area=${player?.currentArea}, desk=${player?.currentDesk}`
+        );
+        clearTimeout(t1);
+      }, 5000);
+    });
   }
 
   static async createInstance(): Promise<GatherWrapper> {
@@ -29,13 +42,15 @@ export class GatherWrapper {
     //   console.log("connected?", connected);
     // });
 
-    await game.connect();
+    // https://stackoverflow.com/questions/69169492/async-external-function-leaves-open-handles-jest-supertest-express
+    await process.nextTick(() => {});
+    game.connect();
     await game.waitForInit();
     return new GatherWrapper(game);
   }
 
   filterObjectsByName(nameFilter: string, callback: GatherObjectCallback) {
-    let objects = this.game.completeMaps[gatherMapId()]?.objects;
+    const objects = this.game.completeMaps[gatherMapId()]?.objects;
     for (const _key in objects) {
       const key = parseInt(_key);
       const obj = objects?.[key];
@@ -46,7 +61,7 @@ export class GatherWrapper {
   }
 
   listMewmbas(): MewmbaObject[] {
-    let mewmbas: MewmbaObject[] = [];
+    const mewmbas: MewmbaObject[] = [];
     this.filterObjectsByName("mewmba", (obj, key) =>
       mewmbas.push(new MewmbaObject(obj, key, obj._name!.toLowerCase()))
     );
@@ -54,7 +69,7 @@ export class GatherWrapper {
   }
 
   printMewmbaList() {
-    for (const mewmba in this.listMewmbas()) {
+    for (const mewmba of this.listMewmbas()) {
       console.log(mewmba);
     }
   }
@@ -67,9 +82,9 @@ export class GatherWrapper {
     });
   }
 
-  async createCoffee(x: number, y: number) {
+  async createCoffee(x: number, y: number): Promise<void> {
     const newCup = CreateCoffeeCup(x, y);
-    await this.game.engine.sendAction({
+    return this.game.engine.sendAction({
       $case: "mapAddObject",
       mapAddObject: { mapId: gatherMapId(), object: newCup },
     });
@@ -110,7 +125,7 @@ export class GatherWrapper {
 
   findCoffee(): { obj: MapObject; key: number } | undefined {
     // Find a random coffee cup, and go vacuum it up
-    let coffees: { obj: MapObject; key: number }[] = [];
+    const coffees: { obj: MapObject; key: number }[] = [];
     this.filterObjectsByName("To-Go Coffee", (obj, key) =>
       coffees.push({ obj, key })
     );
@@ -118,7 +133,7 @@ export class GatherWrapper {
     return coffees[randomInt(coffees.length)];
   }
 
-  getPersonPoint(name: String): Point {
+  getPersonPoint(name: string): Point {
     // Make it pick a person.
     for (const playerKey in this.game.players) {
       const player = this.game.getPlayer(playerKey)!;
@@ -134,14 +149,13 @@ export class GatherWrapper {
     delay: number,
     callback: TrapCallback
   ): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise(() => {
       this.game.subscribeToEvent("playerJoins", (data, context) => {
-        let t1 = setTimeout(async () => {
+        const t1 = setTimeout(async () => {
           const player = this.game.getPlayer(context.playerId!)!;
           if (player.name.toLowerCase().includes(playerName.toLowerCase())) {
             clearTimeout(t1);
             callback(player, context.playerId!);
-            resolve();
           }
         }, delay);
       });
@@ -170,7 +184,7 @@ export class GatherWrapper {
     return this.setJoinTrap(playerName, 1000, async (player, id) => {
       const mewmba = this.getMewmbaByName(mewmbaName);
       // Range: (36,10) -> (45,20)
-      mewmba.routeToPoint({ x: 36, y: 10 });
+      await mewmba.routeToPoint({ x: 36, y: 10 });
       await this.createNeonLight(
         randomInt(36, 45),
         randomInt(10, 20),
@@ -189,10 +203,10 @@ export class GatherWrapper {
       for (let xp = 0; xp < pixels[yp].length; xp++) {
         if (pixels[yp][xp] === 0) continue;
         // Fractional scaling cups
-        let t1 = setTimeout(() => {
-          let xc = x + xp / pixelScale;
-          let yc = y + yp / pixelScale;
-          this.createCoffee(xc, yc);
+        const t1 = setTimeout(async () => {
+          const xc = x + xp / pixelScale;
+          const yc = y + yp / pixelScale;
+          await this.createCoffee(xc, yc);
           clearTimeout(t1);
         }, 1000 * index);
         index++;
@@ -201,15 +215,15 @@ export class GatherWrapper {
   }
 
   async runGuestBadgeIssuerAndVerifier(): Promise<void> {
-    let issuer = new GuestBadgeIssuer();
-    let proof = await issuer.issueGuestBadgeProof(
+    const issuer = new GuestBadgeIssuer();
+    const proof = await issuer.issueGuestBadgeProof(
       "4113",
       "4113@example.com",
       "green"
     );
     this.logger("proof: " + proof);
 
-    let verifier = new GuestBadgeVerifier();
+    const verifier = new GuestBadgeVerifier();
     await verifier.verifyGuestBadgeProof(proof);
   }
 
@@ -240,10 +254,10 @@ export class GatherWrapper {
     mewmbaName: string,
     playerName: string
   ): Promise<void> {
-    return this.setJoinTrap(playerName, 1000, (player, id) => {
+    return this.setJoinTrap(playerName, 1000, async (player, id) => {
       const mewmba = this.getMewmbaByName(mewmbaName);
-      mewmba.chasePlayer(playerName);
-      this.createNeonLight(1, 1, "violet");
+      await mewmba.chasePlayer(playerName);
+      await this.createNeonLight(1, 1, "violet");
     });
   }
 

@@ -5,13 +5,15 @@
   "main": "index.ts",
   "scripts": {
     "chase": "ts-node index.ts --chase --player \"***RANDOM***\" --mewmba \"***RANDOM***\"",
+    "nodemon:chase": "npx nodemon index.ts --chase --player \"***RANDOM***\" --mewmba \"***RANDOM***\"",
     "wander": "ts-node index.ts --wander --mewmba \"***RANDOM***\"",
     "cleanup": "ts-node index.ts --cleanup --mewmba \"black\"",
     "jaws": "ts-node index.ts --jaws --mewmba \"black\"",
-    "test": "jest --watchAll=false",
+    "test": "jest --watchAll=false --detectOpenHandles",
     "build": "tsc",
     "prettier:check": "npx prettier --check ./src ./__tests__",
-    "prettier:write": "npx prettier --write ./src ./__tests__"
+    "prettier:write": "npx prettier --write ./src ./__tests__",
+    "eslint:check": "npx eslint ./src/**/*.ts --fix"
   },
   "repository": {
     "type": "git",
@@ -26,6 +28,8 @@
   "homepage": "https://github.com/trinsic-id/mewmba#readme",
   "dependencies": {
     "@gathertown/gather-game-client": "37.0.1",
+    "@octokit/request": "6.2.2",
+    "@slack/bolt": "3.12.1",
     "@trinsic/trinsic": "1.8.0",
     "command-line-args": "5.2.1",
     "isomorphic-ws": "5.0.0",
@@ -39,9 +43,13 @@
     "@types/jest": "29.2.1",
     "@types/node": "18.11.9",
     "@types/pathfinding": "0.0.6",
+    "@typescript-eslint/eslint-plugin": "^5.42.0",
+    "@typescript-eslint/parser": "^5.42.0",
+    "eslint": "8.26.0",
+    "nodemon": "2.0.20",
+    "prettier": "2.7.1",
     "ts-jest": "29.0.3",
     "ts-node": "10.9.1",
-    "typescript": "4.8.4",
-    "prettier": "2.7.1"
+    "typescript": "4.8.4"
   }
 }
