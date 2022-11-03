@@ -23,7 +23,7 @@ export class GatherWrapper {
     this.slack = new SlackIntegration();
     this.game.subscribeToEvent("playerJoins", async (data, context) => {
       // Delay for 5 seconds to allow everything to populate
-      let t1 = setTimeout(async () => {
+      setTimeout(async () => {
         const player = this.game.getPlayer(context.playerId!)!;
         await this.slack.postMessage(
           `${player?.name} joined gather at ${player.map} area=${player?.currentArea}, desk=${player?.currentDesk}`
@@ -41,7 +41,7 @@ export class GatherWrapper {
     //   console.log("connected?", connected);
     // });
 
-    await game.connect();
+    game.connect();
     await game.waitForInit();
     return new GatherWrapper(game);
   }
@@ -79,9 +79,9 @@ export class GatherWrapper {
     });
   }
 
-  async createCoffee(x: number, y: number) {
+  async createCoffee(x: number, y: number): Promise<void> {
     const newCup = CreateCoffeeCup(x, y);
-    await this.game.engine.sendAction({
+    return this.game.engine.sendAction({
       $case: "mapAddObject",
       mapAddObject: { mapId: gatherMapId(), object: newCup },
     });
@@ -182,7 +182,7 @@ export class GatherWrapper {
     return this.setJoinTrap(playerName, 1000, async (player, id) => {
       const mewmba = this.getMewmbaByName(mewmbaName);
       // Range: (36,10) -> (45,20)
-      mewmba.routeToPoint({ x: 36, y: 10 });
+      await mewmba.routeToPoint({ x: 36, y: 10 });
       await this.createNeonLight(
         randomInt(36, 45),
         randomInt(10, 20),
@@ -201,10 +201,10 @@ export class GatherWrapper {
       for (let xp = 0; xp < pixels[yp].length; xp++) {
         if (pixels[yp][xp] === 0) continue;
         // Fractional scaling cups
-        let t1 = setTimeout(() => {
+        let t1 = setTimeout(async () => {
           let xc = x + xp / pixelScale;
           let yc = y + yp / pixelScale;
-          this.createCoffee(xc, yc);
+          await this.createCoffee(xc, yc);
           clearTimeout(t1);
         }, 1000 * index);
         index++;
@@ -252,10 +252,10 @@ export class GatherWrapper {
     mewmbaName: string,
     playerName: string
   ): Promise<void> {
-    return this.setJoinTrap(playerName, 1000, (player, id) => {
+    return this.setJoinTrap(playerName, 1000, async (player, id) => {
       const mewmba = this.getMewmbaByName(mewmbaName);
-      mewmba.chasePlayer(playerName);
-      this.createNeonLight(1, 1, "violet");
+      await mewmba.chasePlayer(playerName);
+      await this.createNeonLight(1, 1, "violet");
     });
   }
 

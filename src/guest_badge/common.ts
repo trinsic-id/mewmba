@@ -1,6 +1,6 @@
-import { writeFileSync, readFileSync, existsSync } from "fs";
-import { deflateSync } from "zlib";
-import { AccountService } from "@trinsic/trinsic";
+import {existsSync, readFileSync, writeFileSync} from "fs";
+import {deflateSync} from "zlib";
+import {AccountService} from "@trinsic/trinsic";
 
 export function storeProfile(profile: string, filename: string) {
   writeFileSync(filename, profile);
@@ -26,6 +26,5 @@ export async function loadMewmbaProfile(): Promise<string> {
 
 export function encodeProofDocument(proofDocument: string) {
   let compressed = deflateSync(JSON.stringify(proofDocument), { level: 9 });
-  let encoded = Buffer.from(compressed).toString("base64");
-  return encoded;
+  return Buffer.from(compressed).toString("base64");
 }

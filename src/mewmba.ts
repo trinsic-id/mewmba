@@ -72,6 +72,10 @@ export class Mewmba {
     await this.animateMovement(path, undefined);
   }
 
+  async wander(distance: number): Promise<void> {
+    return this.routeToPoint(this.getRandomPoint(distance));
+  }
+
   async chasePlayer(name: string): Promise<void> {
     const path = this.computeRoute(this.wrapper.getPersonPoint(name));
     return this.animateMovement(path, () => {

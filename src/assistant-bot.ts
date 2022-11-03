@@ -4,7 +4,8 @@ import { debuglog } from "util";
 
 function isBase64(str: string) {
   try {
-    return btoa(atob(str)) == str;
+    Buffer.from(str, 'base64');
+    return true;
   } catch (err) {
     return false;
   }

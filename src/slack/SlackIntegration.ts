@@ -1,7 +1,7 @@
-import { App, AppMentionEvent, SayFn } from "@slack/bolt";
-import { UsersInfoResponse } from "@slack/web-api";
-import { createIssue } from "../GithubIntegration";
-import { slackOAuthToken, slackSocketToken } from "../util";
+import {App, AppMentionEvent, SayFn} from "@slack/bolt";
+import {UsersInfoResponse} from "@slack/web-api";
+import {createIssue} from "../GithubIntegration";
+import {slackOAuthToken, slackSocketToken} from "../util";
 
 export class SlackIntegration {
   app: App;
@@ -28,11 +28,10 @@ export class SlackIntegration {
   async getUserInfo(userId: string): Promise<UsersInfoResponse> {
     userId = userId.replace("<", "").replace(">", "").replace("@", "");
     if (!(userId in this._userInfoCache)) {
-      const result = await this.app.client.users.info({
+      this._userInfoCache[userId] = await this.app.client.users.info({
         token: slackOAuthToken(),
         user: userId,
       });
-      this._userInfoCache[userId] = result;
     }
     return this._userInfoCache[userId];
   }
