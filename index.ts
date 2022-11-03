@@ -41,7 +41,7 @@ GatherWrapper.createInstance().then(async (value: GatherWrapper) => {
       mewmbas.push(myWrapper.setJawsTrap(options.player));
     }
     if (options.wander) {
-      mewmbas.push(myMewmba.routeToPoint(myMewmba.getRandomPoint()));
+      mewmbas.push(myMewmba.wander());
     }
     if (options.cleanup) {
       mewmbas.push(myWrapper.mewmbaCleanupCoffee(myMewmbaName as string));

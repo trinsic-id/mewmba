@@ -69,10 +69,10 @@ export class Mewmba {
 
   async routeToPoint(target: Point): Promise<void> {
     const path = this.computeRoute(target);
-    await this.animateMovement(path, undefined);
+    return this.animateMovement(path, undefined);
   }
 
-  async wander(distance: number): Promise<void> {
+  async wander(distance: number = -1): Promise<void> {
     return this.routeToPoint(this.getRandomPoint(distance));
   }
 
@@ -162,8 +162,8 @@ export class Mewmba {
       return;
     }
     let pathStep = 1;
-    return await new Promise((resolve) => {
-      const stepTimer: NodeJS.Timer = setInterval(async () => {
+    return new Promise((resolve) => {
+      const stepTimer: NodeJS.Timer = setInterval(() => {
         if (!this.moveTowardsPoint(pointFromArray(path[pathStep]))) {
           if (onstepCallback) {
             path = onstepCallback();
@@ -174,6 +174,7 @@ export class Mewmba {
 
         if (pathStep == path.length) {
           clearInterval(stepTimer);
+          stepTimer.unref();
           resolve();
         }
       }, 100);

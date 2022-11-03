@@ -23,11 +23,12 @@ export class GatherWrapper {
     this.slack = new SlackIntegration();
     this.game.subscribeToEvent("playerJoins", async (data, context) => {
       // Delay for 5 seconds to allow everything to populate
-      setTimeout(async () => {
+      const t1 = setTimeout(async () => {
         const player = this.game.getPlayer(context.playerId!)!;
         await this.slack.postMessage(
           `${player?.name} joined gather at ${player.map} area=${player?.currentArea}, desk=${player?.currentDesk}`
         );
+        clearTimeout(t1);
       }, 5000);
     });
   }
@@ -41,6 +42,8 @@ export class GatherWrapper {
     //   console.log("connected?", connected);
     // });
 
+    // https://stackoverflow.com/questions/69169492/async-external-function-leaves-open-handles-jest-supertest-express
+    await process.nextTick(() => {});
     game.connect();
     await game.waitForInit();
     return new GatherWrapper(game);
@@ -66,7 +69,7 @@ export class GatherWrapper {
   }
 
   printMewmbaList() {
-    for (const mewmba in this.listMewmbas()) {
+    for (const mewmba of this.listMewmbas()) {
       console.log(mewmba);
     }
   }
@@ -146,14 +149,13 @@ export class GatherWrapper {
     delay: number,
     callback: TrapCallback
   ): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise(() => {
       this.game.subscribeToEvent("playerJoins", (data, context) => {
         const t1 = setTimeout(async () => {
           const player = this.game.getPlayer(context.playerId!)!;
           if (player.name.toLowerCase().includes(playerName.toLowerCase())) {
             clearTimeout(t1);
             callback(player, context.playerId!);
-            resolve();
           }
         }, delay);
       });

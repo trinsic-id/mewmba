@@ -1,3 +1,5 @@
+import { API_GITHUB_PAT } from "../api-key";
+
 export function gatherApiKey(): string {
   if (process.env.GATHER_API_KEY) return process.env.GATHER_API_KEY;
   const ApiKeys = require("../api-key");
@@ -30,7 +32,7 @@ export function slackSocketToken(): string {
 }
 
 export function githubPlatformToken(): string {
-  if (process.env.GITHUB_PAT) return process.env.GITHUB_PAT;
+  if (process.env.API_GITHUB_PAT) return process.env.API_GITHUB_PAT;
   const ApiKeys = require("../api-key");
-  return ApiKeys.GITHUB_PAT;
+  return ApiKeys.API_GITHUB_PAT;
 }
