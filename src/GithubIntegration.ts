@@ -5,8 +5,8 @@ import { githubPlatformToken } from "./util";
 export async function createIssue(
   title: string,
   body: string,
-  owner: string = "trinsic-id",
-  repo: string = "server"
+  owner = "trinsic-id",
+  repo = "server"
 ): Promise<string> {
   const result = await request("POST /repos/{owner}/{repo}/issues", {
     headers: {

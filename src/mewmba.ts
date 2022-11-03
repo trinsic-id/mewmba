@@ -42,10 +42,10 @@ export class Mewmba {
    *
    * @param distance Manhattan distance from current mewmba location. -1 for arbitrary distance.
    */
-  getRandomPoint(distance: number = -1): Point {
+  getRandomPoint(distance = -1): Point {
     const grid = this.downloadGrid();
-    let targetX: number = 0;
-    let targetY: number = 0;
+    let targetX = 0;
+    let targetY = 0;
     // TODO - This does not necessarily halt.
     while (true) {
       if (distance < 0) {
@@ -97,7 +97,7 @@ export class Mewmba {
   private downloadGrid(): PF.Grid {
     const impassable =
       this.wrapper.game.completeMaps[gatherMapId()]?.collisions!;
-    let passGrid: number[][] = [];
+    const passGrid: number[][] = [];
     for (let row = 0; row < impassable.length; row++) {
       passGrid[row] = [];
       for (let col = 0; col < impassable[0].length; col++)
@@ -187,8 +187,8 @@ export function pointFromArray(pt: number[]): Point {
 
 export class MewmbaObject {
   obj: MapObject;
-  key: number = 0;
-  name: string = "";
+  key = 0;
+  name = "";
 
   constructor(obj: MapObject, key: number, name: string) {
     this.obj = obj;

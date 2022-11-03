@@ -47,7 +47,7 @@ export class GatherWrapper {
   }
 
   filterObjectsByName(nameFilter: string, callback: GatherObjectCallback) {
-    let objects = this.game.completeMaps[gatherMapId()]?.objects;
+    const objects = this.game.completeMaps[gatherMapId()]?.objects;
     for (const _key in objects) {
       const key = parseInt(_key);
       const obj = objects?.[key];
@@ -58,7 +58,7 @@ export class GatherWrapper {
   }
 
   listMewmbas(): MewmbaObject[] {
-    let mewmbas: MewmbaObject[] = [];
+    const mewmbas: MewmbaObject[] = [];
     this.filterObjectsByName("mewmba", (obj, key) =>
       mewmbas.push(new MewmbaObject(obj, key, obj._name!.toLowerCase()))
     );
@@ -122,7 +122,7 @@ export class GatherWrapper {
 
   findCoffee(): { obj: MapObject; key: number } | undefined {
     // Find a random coffee cup, and go vacuum it up
-    let coffees: { obj: MapObject; key: number }[] = [];
+    const coffees: { obj: MapObject; key: number }[] = [];
     this.filterObjectsByName("To-Go Coffee", (obj, key) =>
       coffees.push({ obj, key })
     );
@@ -130,7 +130,7 @@ export class GatherWrapper {
     return coffees[randomInt(coffees.length)];
   }
 
-  getPersonPoint(name: String): Point {
+  getPersonPoint(name: string): Point {
     // Make it pick a person.
     for (const playerKey in this.game.players) {
       const player = this.game.getPlayer(playerKey)!;
@@ -148,7 +148,7 @@ export class GatherWrapper {
   ): Promise<void> {
     return new Promise((resolve) => {
       this.game.subscribeToEvent("playerJoins", (data, context) => {
-        let t1 = setTimeout(async () => {
+        const t1 = setTimeout(async () => {
           const player = this.game.getPlayer(context.playerId!)!;
           if (player.name.toLowerCase().includes(playerName.toLowerCase())) {
             clearTimeout(t1);
@@ -201,9 +201,9 @@ export class GatherWrapper {
       for (let xp = 0; xp < pixels[yp].length; xp++) {
         if (pixels[yp][xp] === 0) continue;
         // Fractional scaling cups
-        let t1 = setTimeout(async () => {
-          let xc = x + xp / pixelScale;
-          let yc = y + yp / pixelScale;
+        const t1 = setTimeout(async () => {
+          const xc = x + xp / pixelScale;
+          const yc = y + yp / pixelScale;
           await this.createCoffee(xc, yc);
           clearTimeout(t1);
         }, 1000 * index);
@@ -213,15 +213,15 @@ export class GatherWrapper {
   }
 
   async runGuestBadgeIssuerAndVerifier(): Promise<void> {
-    let issuer = new GuestBadgeIssuer();
-    let proof = await issuer.issueGuestBadgeProof(
+    const issuer = new GuestBadgeIssuer();
+    const proof = await issuer.issueGuestBadgeProof(
       "4113",
       "4113@example.com",
       "green"
     );
     this.logger("proof: " + proof);
 
-    let verifier = new GuestBadgeVerifier();
+    const verifier = new GuestBadgeVerifier();
     await verifier.verifyGuestBadgeProof(proof);
   }
 

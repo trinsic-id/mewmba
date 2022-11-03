@@ -29,39 +29,39 @@ export class GuestBadgeIssuer {
     name: string,
     email: string,
     color: string,
-    encode: boolean = false
+    encode = false
   ) {
     // Issue a MewmbaGuestBadge proof document. If `encode` is true, return it as a compressed
     // base 64 string. Otherwise, return it as a JSON string.
 
-    let credential_values = JSON.stringify({
+    const credential_values = JSON.stringify({
       name: name,
       email: email,
       color: color,
     });
-    let req = IssueFromTemplateRequest.fromPartial({
+    const req = IssueFromTemplateRequest.fromPartial({
       templateId: GUEST_BADGE_TEMPLATE_ID,
       valuesJson: credential_values,
     });
 
-    let mewmba = await loadMewmbaProfile();
-    let credentialService = new CredentialService(
+    const mewmba = await loadMewmbaProfile();
+    const credentialService = new CredentialService(
       ServiceOptions.fromPartial({ authToken: mewmba })
     );
-    let credential = (await credentialService.issueFromTemplate(req))
+    const credential = (await credentialService.issueFromTemplate(req))
       .documentJson;
 
-    let guest = await loadNewProfile();
-    let walletService = new WalletService(
+    const guest = await loadNewProfile();
+    const walletService = new WalletService(
       ServiceOptions.fromPartial({ authToken: guest })
     );
-    let itemId = (
+    const itemId = (
       await walletService.insertItem(
         InsertItemRequest.fromPartial({ itemJson: credential })
       )
     ).itemId;
     credentialService.options.authToken = guest;
-    let proof = (
+    const proof = (
       await credentialService.createProof(
         CreateProofRequest.fromPartial({
           revealDocumentJson: this.proofRequestFrame,
@@ -72,7 +72,7 @@ export class GuestBadgeIssuer {
 
     // sanity-check verification will work since mewmba is both issuer and verifier
     credentialService.options.authToken = mewmba;
-    let isVerified = await credentialService.verifyProof({
+    const isVerified = await credentialService.verifyProof({
       proofDocumentJson: proof,
     });
     console.log("[issue] isVerified: " + isVerified);

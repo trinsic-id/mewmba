@@ -72,7 +72,7 @@ export class SlackIntegration {
               const matchUserInfo = await this.getUserInfo(match);
               messageText = messageText.replace(
                 match,
-                matchUserInfo.user?.name!
+                matchUserInfo.user!.name!
               );
             }
           }
@@ -137,7 +137,7 @@ export class SlackIntegration {
     });
   }
 
-  async postMessage(message: string, channelName: string = "gather") {
+  async postMessage(message: string, channelName = "gather") {
     const result = await this.app.client.chat.postMessage({
       // The token you used to initialize your app
       token: slackOAuthToken(),
