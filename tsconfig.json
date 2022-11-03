@@ -8,16 +8,8 @@
     "strict": true,
     "esModuleInterop": true,
     "moduleResolution": "Node",
-    "lib": [
-      "es2019",
-      "dom"
-    ]
+    "lib": ["es2019", "dom"]
   },
-  "include": [
-    "./src/**/*.ts",
-    "./src/*.ts",
-    "__tests__/*.ts",
-    "*.ts"
-  ],
+  "include": ["./src/**/*.ts", "./src/*.ts", "__tests__/*.ts", "*.ts"],
   "references": []
 }

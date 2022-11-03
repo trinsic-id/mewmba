@@ -15,3 +15,16 @@ export function gatherSpaceId(): string {
   const ApiKeys = require("../api-key");
   return ApiKeys.GATHER_SPACE_ID;
 }
+
+export function slackOAuthToken(): string {
+  if (process.env.SLACK_BOT_USER_OAUTH_TOKEN)
+    return process.env.SLACK_BOT_USER_OAUTH_TOKEN;
+  const ApiKeys = require("../api-key");
+  return ApiKeys.SLACK_BOT_USER_OAUTH_TOKEN;
+}
+
+export function slackSocketToken(): string {
+  if (process.env.SLACK_SOCKET_TOKEN) return process.env.SLACK_SOCKET_TOKEN;
+  const ApiKeys = require("../api-key");
+  return ApiKeys.SLACK_SOCKET_TOKEN;
+}

@@ -8,6 +8,7 @@ import { GuestBadgeIssuer } from "./guest_badge/issuer";
 import { GuestBadgeVerifier } from "./guest_badge/verifier";
 import { gatherApiKey, gatherMapId, gatherSpaceId } from "./util";
 import { debuglog } from "util";
+import { SlackIntegration } from "./slack/SlackIntegration";
 
 type GatherObjectCallback = (obj: MapObject, key: number) => void;
 type TrapCallback = (player: Player, id: string) => void;
@@ -15,9 +16,20 @@ type TrapCallback = (player: Player, id: string) => void;
 export class GatherWrapper {
   game: Game;
   logger = debuglog("GatherWrapper");
+  slack: SlackIntegration;
 
   private constructor(game: Game) {
     this.game = game;
+    this.slack = new SlackIntegration();
+    this.game.subscribeToEvent("playerJoins", async (data, context) => {
+      // Delay for 5 seconds to allow everything to populate
+      let t1 = setTimeout(async () => {
+        const player = this.game.getPlayer(context.playerId!)!;
+        await this.slack.postMessage(
+          `${player?.name} joined gather at ${player.map} area=${player?.currentArea}, desk=${player?.currentDesk}`
+        );
+      }, 5000);
+    });
   }
 
   static async createInstance(): Promise<GatherWrapper> {
