@@ -1,5 +1,5 @@
 import { request } from "@octokit/request";
-import { GITHUB_PAT } from "../api-key";
+import {githubPlatformToken} from "./util";
 
 // TODO - Maybe other defaults
 export async function createIssue(
@@ -10,7 +10,7 @@ export async function createIssue(
 ): Promise<string> {
   const result = await request("POST /repos/{owner}/{repo}/issues", {
     headers: {
-      authorization: `token ${GITHUB_PAT}`,
+      authorization: `token ${githubPlatformToken()}`,
     },
     owner: owner,
     repo: repo,

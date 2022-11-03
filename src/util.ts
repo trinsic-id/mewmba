@@ -1,3 +1,5 @@
+import ApiKeys from "../api-key";
+
 export function gatherApiKey(): string {
   if (process.env.GATHER_API_KEY) return process.env.GATHER_API_KEY;
   const ApiKeys = require("../api-key");
@@ -27,4 +29,10 @@ export function slackSocketToken(): string {
   if (process.env.SLACK_SOCKET_TOKEN) return process.env.SLACK_SOCKET_TOKEN;
   const ApiKeys = require("../api-key");
   return ApiKeys.SLACK_SOCKET_TOKEN;
+}
+
+export function githubPlatformToken(): string {
+  if (process.env.GITHUB_PAT) return process.env.GITHUB_PAT;
+  const ApiKeys = require("../api-key");
+  return ApiKeys.GITHUB_PAT;
 }
