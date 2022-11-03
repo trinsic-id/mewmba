@@ -1,5 +1,5 @@
 import { request } from "@octokit/request";
-import {githubPlatformToken} from "./util";
+import { githubPlatformToken } from "./util";
 
 // TODO - Maybe other defaults
 export async function createIssue(

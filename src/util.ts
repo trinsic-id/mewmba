@@ -1,5 +1,3 @@
-import ApiKeys from "../api-key";
-
 export function gatherApiKey(): string {
   if (process.env.GATHER_API_KEY) return process.env.GATHER_API_KEY;
   const ApiKeys = require("../api-key");

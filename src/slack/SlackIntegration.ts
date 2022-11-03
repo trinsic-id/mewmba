@@ -1,7 +1,7 @@
-import {App, AppMentionEvent, SayFn} from "@slack/bolt";
-import {UsersInfoResponse} from "@slack/web-api";
-import {createIssue} from "../GithubIntegration";
-import {slackOAuthToken, slackSocketToken} from "../util";
+import { App, AppMentionEvent, SayFn } from "@slack/bolt";
+import { UsersInfoResponse } from "@slack/web-api";
+import { createIssue } from "../GithubIntegration";
+import { slackOAuthToken, slackSocketToken } from "../util";
 
 export class SlackIntegration {
   app: App;

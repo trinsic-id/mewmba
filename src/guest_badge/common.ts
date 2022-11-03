@@ -1,6 +1,6 @@
-import {existsSync, readFileSync, writeFileSync} from "fs";
-import {deflateSync} from "zlib";
-import {AccountService} from "@trinsic/trinsic";
+import { existsSync, readFileSync, writeFileSync } from "fs";
+import { deflateSync } from "zlib";
+import { AccountService } from "@trinsic/trinsic";
 
 export function storeProfile(profile: string, filename: string) {
   writeFileSync(filename, profile);
