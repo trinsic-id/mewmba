@@ -39,11 +39,11 @@ export class SlackIntegration {
   }
 
   private async ticketThis(event: AppMentionEvent, say: SayFn): Promise<void> {
-    const repoRegex = /repo[sitory]*=\w+/
+    const repoRegex = /repo[sitory]*=\w+/;
     let ticketTitle = event.text
-        .substring(event.text.indexOf(ticketCommand) + ticketCommand.length)
-        .trim();
-    let targetRepo = "server"
+      .substring(event.text.indexOf(ticketCommand) + ticketCommand.length)
+      .trim();
+    let targetRepo = "server";
     if (event.thread_ts) {
       const isParentMessage = event.thread_ts === event.ts;
       if (!isParentMessage) {
@@ -57,8 +57,8 @@ export class SlackIntegration {
         if (repoMatch !== null) {
           // TODO - Named subgroups
           targetRepo = repoMatch[0];
-          targetRepo = targetRepo.substring(targetRepo.indexOf("=")+1);
-          ticketTitle = ticketTitle.replace(repoMatch[0], "")
+          targetRepo = targetRepo.substring(targetRepo.indexOf("=") + 1);
+          ticketTitle = ticketTitle.replace(repoMatch[0], "");
         }
         // TODO - Pagination
         const orderedMessages = [...result.messages!];
@@ -94,8 +94,8 @@ export class SlackIntegration {
         const issueUrl = await createIssue(
           ticketTitle || "Ticket From Slack",
           processedMessages.join("\n"),
-            "trinsic-id",
-            targetRepo
+          "trinsic-id",
+          targetRepo
         );
         // TODO - Reply with a Link to ticket.
         // TODO - React with checkbox to message?
