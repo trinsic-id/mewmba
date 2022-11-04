@@ -12,10 +12,10 @@ export async function createIssue(
     headers: {
       authorization: `token ${githubPlatformToken()}`,
     },
-    owner: owner,
-    repo: repo,
-    title: title,
-    body: body,
+    owner: owner.trim(),
+    repo: repo.trim(),
+    title: title.trim(),
+    body: body.trim(),
   });
   console.log(result);
   return result.data.html_url;

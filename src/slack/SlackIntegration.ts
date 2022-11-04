@@ -3,6 +3,8 @@ import { UsersInfoResponse } from "@slack/web-api";
 import { createIssue } from "../GithubIntegration";
 import { slackOAuthToken, slackSocketToken } from "../util";
 
+const ticketCommand = "ticket this";
+
 export class SlackIntegration {
   app: App;
   private _userInfoCache: { [key: string]: UsersInfoResponse } = {};
@@ -37,10 +39,11 @@ export class SlackIntegration {
   }
 
   private async ticketThis(event: AppMentionEvent, say: SayFn): Promise<void> {
-    const ticketString = "ticket this";
-    const ticketTitle = event.text
-      .substring(event.text.indexOf(ticketString) + ticketString.length)
-      .trim();
+    const repoRegex = /repo[sitory]*=\w+/
+    let ticketTitle = event.text
+        .substring(event.text.indexOf(ticketCommand) + ticketCommand.length)
+        .trim();
+    let targetRepo = "server"
     if (event.thread_ts) {
       const isParentMessage = event.thread_ts === event.ts;
       if (!isParentMessage) {
@@ -50,6 +53,13 @@ export class SlackIntegration {
           channel: event.channel,
           include_all_metadata: true,
         });
+        let repoMatch = repoRegex.exec(ticketTitle);
+        if (repoMatch !== null) {
+          // TODO - Named subgroups
+          targetRepo = repoMatch[0];
+          targetRepo = targetRepo.substring(targetRepo.indexOf("=")+1);
+          ticketTitle = ticketTitle.replace(repoMatch[0], "")
+        }
         // TODO - Pagination
         const orderedMessages = [...result.messages!];
         const processedMessagePromises = orderedMessages.map(async (value) => {
@@ -83,7 +93,9 @@ export class SlackIntegration {
         console.log("Ordered thread messages", processedMessages);
         const issueUrl = await createIssue(
           ticketTitle || "Ticket From Slack",
-          processedMessages.join("\n")
+          processedMessages.join("\n"),
+            "trinsic-id",
+            targetRepo
         );
         // TODO - Reply with a Link to ticket.
         // TODO - React with checkbox to message?
@@ -128,7 +140,7 @@ export class SlackIntegration {
     this.app.event("app_mention", async ({ event, context, client, say }) => {
       // TODO - Slash command this
       try {
-        if (event.text.indexOf("ticket this") > 0) {
+        if (event.text.indexOf(ticketCommand) > 0) {
           await this.ticketThis(event, say);
         }
       } catch (error) {
