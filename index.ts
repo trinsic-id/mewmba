@@ -2,10 +2,6 @@ import { GatherWrapper } from "./src/gatherwrapper";
 import commandLineArgs, { OptionDefinition } from "command-line-args";
 import { SlackIntegration } from "./src/slack/SlackIntegration";
 
-let issueUrl = "https://github.com/trinsic-id/server/issues/1638"
-let x = `\<${issueUrl}\|Ticket Created\>`
-console.log(x)
-
 const optionsDefinition: OptionDefinition[] = [
   { name: "chase", type: Boolean },
   { name: "cleanup", type: Boolean },

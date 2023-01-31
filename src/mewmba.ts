@@ -98,11 +98,14 @@ export class Mewmba {
     const myMap = this.wrapper.game.completeMaps[gatherMapId()]!;
     const impassable = myMap.collisions!;
     const passGrid: number[][] = [];
-    for (let row = 0; row < myMap.dimensions[0]; row++) {
+    for (let row = 0; row < myMap.dimensions[1]; row++) {
       passGrid[row] = [];
-      for (let col = 0; col < myMap.dimensions[1]; col++)
-        passGrid[row][col] = Number(impassable[row][col]);
+      for (let col = 0; col < myMap.dimensions[0]; col++)
+        passGrid[row][col] = 0;
     }
+    for (let y in impassable)
+      for (let x in impassable[y])
+        passGrid[y][x] = 1;
     return new PF.Grid(passGrid);
   }
 
@@ -116,7 +119,7 @@ export class Mewmba {
     const dx = target.x - (roomba.x + roomba.offsetX! / pixelSize);
     const dy = target.y - (roomba.y + roomba.offsetY! / pixelSize);
 
-    if (Math.abs(dx) < 1.0 / pixelSize && Math.abs(dy) < 1.0 / pixelSize)
+    if (Math.abs(dx) <= 1.0 / pixelSize && Math.abs(dy) <= 1.0 / pixelSize)
       return false;
 
     const theta = Math.atan2(dy, dx);
