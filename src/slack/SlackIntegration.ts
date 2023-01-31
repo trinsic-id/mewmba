@@ -1,5 +1,5 @@
 import { App, AppMentionEvent, SayFn } from "@slack/bolt";
-import { UsersInfoResponse } from "@slack/web-api";
+import {UsersInfoResponse, UsersListResponse, ConversationsListResponse} from "@slack/web-api";
 import { createIssue } from "../GithubIntegration";
 import { slackOAuthToken, slackSocketToken } from "../util";
 
@@ -25,6 +25,18 @@ export class SlackIntegration {
 
   async disconnect(): Promise<void> {
     await this.app.stop();
+  }
+
+  async getUsersList(): Promise<UsersListResponse> {
+    return await this.app.client.users.list({
+      token: slackOAuthToken(),
+    });
+  }
+
+  async getChannelsList(): Promise<ConversationsListResponse> {
+    return await this.app.client.conversations.list({
+      token: slackOAuthToken(),
+    });
   }
 
   async getUserInfo(userId: string): Promise<UsersInfoResponse> {
@@ -63,12 +75,11 @@ export class SlackIntegration {
         // TODO - Pagination
         const orderedMessages = [...result.messages!];
         const processedMessagePromises = orderedMessages.map(async (value) => {
-          // TODO - Get User name
           const userInfo = await this.getUserInfo(value.user!);
           let messageText = value.text!;
           const slackUserRegex = /<@U\w+>/g;
 
-          let m;
+          let m: RegExpExecArray | null;
           while ((m = slackUserRegex.exec(messageText)) !== null) {
             // This is necessary to avoid infinite loops with zero-width matches
             if (m.index === slackUserRegex.lastIndex) {
@@ -94,11 +105,16 @@ export class SlackIntegration {
         const issueUrl = await createIssue(
           ticketTitle || "Ticket From Slack",
           processedMessages.join("\n"),
-          "trinsic-id",
+          "trinsic-id", // TODO - Allow other owners
           targetRepo
         );
-        // TODO - Reply with a Link to ticket.
-        // TODO - React with checkbox to message?
+        // React with checkbox to message
+        await this.app.client.reactions.add({
+          token: slackOAuthToken(),
+          channel: event.channel,
+          timestamp: event.ts,
+          name: "white_check_mark"
+        })
         await say({
           text: `Ticket Created:${issueUrl}`,
           blocks: [
@@ -106,7 +122,7 @@ export class SlackIntegration {
               type: "section",
               text: {
                 type: "mrkdwn",
-                text: `[Ticket Created](${issueUrl})`,
+                text: `\<${issueUrl}\|Ticket Created\>`,
               },
             },
           ],
