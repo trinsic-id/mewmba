@@ -76,7 +76,7 @@ export class GatherWrapper {
 
   async createNeonLight(x: number, y: number, colorName: string) {
     const newLight = CreateLight(x, y, colorName);
-    await this.game.engine.sendAction({
+    await this.game.engine!.sendAction({
       $case: "mapAddObject",
       mapAddObject: { mapId: gatherMapId(), object: newLight },
     });
@@ -84,7 +84,7 @@ export class GatherWrapper {
 
   async createCoffee(x: number, y: number): Promise<void> {
     const newCup = CreateCoffeeCup(x, y);
-    return this.game.engine.sendAction({
+    return this.game.engine!.sendAction({
       $case: "mapAddObject",
       mapAddObject: { mapId: gatherMapId(), object: newCup },
     });

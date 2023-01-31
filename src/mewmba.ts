@@ -95,12 +95,12 @@ export class Mewmba {
   }
 
   private downloadGrid(): PF.Grid {
-    const impassable =
-      this.wrapper.game.completeMaps[gatherMapId()]?.collisions!;
+    const myMap = this.wrapper.game.completeMaps[gatherMapId()]!;
+    const impassable = myMap.collisions!;
     const passGrid: number[][] = [];
-    for (let row = 0; row < impassable.length; row++) {
+    for (let row = 0; row < myMap.dimensions[0]; row++) {
       passGrid[row] = [];
-      for (let col = 0; col < impassable[0].length; col++)
+      for (let col = 0; col < myMap.dimensions[1]; col++)
         passGrid[row][col] = Number(impassable[row][col]);
     }
     return new PF.Grid(passGrid);
@@ -145,7 +145,7 @@ export class Mewmba {
     this.mapObject.offsetY = fracY;
 
     this.logger(`Object updates=${objectUpdates}`);
-    this.wrapper.game.engine.sendAction({
+    this.wrapper.game.engine!.sendAction({
       $case: "mapSetObjects",
       mapSetObjects: { mapId: gatherMapId(), objects: objectUpdates },
     });
