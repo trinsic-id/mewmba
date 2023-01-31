@@ -103,9 +103,7 @@ export class Mewmba {
       for (let col = 0; col < myMap.dimensions[0]; col++)
         passGrid[row][col] = 0;
     }
-    for (let y in impassable)
-      for (let x in impassable[y])
-        passGrid[y][x] = 1;
+    for (let y in impassable) for (let x in impassable[y]) passGrid[y][x] = 1;
     return new PF.Grid(passGrid);
   }
 

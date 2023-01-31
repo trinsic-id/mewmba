@@ -1,5 +1,9 @@
 import { App, AppMentionEvent, SayFn } from "@slack/bolt";
-import {UsersInfoResponse, UsersListResponse, ConversationsListResponse} from "@slack/web-api";
+import {
+  UsersInfoResponse,
+  UsersListResponse,
+  ConversationsListResponse,
+} from "@slack/web-api";
 import { createIssue } from "../GithubIntegration";
 import { slackOAuthToken, slackSocketToken } from "../util";
 
@@ -113,8 +117,8 @@ export class SlackIntegration {
           token: slackOAuthToken(),
           channel: event.channel,
           timestamp: event.ts,
-          name: "white_check_mark"
-        })
+          name: "white_check_mark",
+        });
         await say({
           text: `Ticket Created:${issueUrl}`,
           blocks: [
