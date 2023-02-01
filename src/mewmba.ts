@@ -7,16 +7,28 @@ import { debuglog } from "util";
 
 type OnStepCallback = () => number[][];
 
+
+const DEFAULT_SPEED = 2.0; // pixels per step
+const PIXEL_SIZE = 32.0; // pixels per tile
+
 export class Mewmba {
   wrapper: GatherWrapper;
   mapObject: MapObject;
   key: number;
   logger = debuglog("mewmba");
 
+  speed: number
+
   constructor(game: GatherWrapper, obj: MapObject, key: number) {
     this.wrapper = game;
     this.mapObject = obj;
     this.key = key;
+    // TODO - Allow the mewmbas to run at different speeds?
+    this.speed = DEFAULT_SPEED
+  }
+
+  isStuck(): boolean {
+    return !this.downloadGrid().isWalkableAt(this.mapObject.x, this.mapObject.y);
   }
 
   computeRoute(target: Point): number[][] {
@@ -69,6 +81,9 @@ export class Mewmba {
 
   async routeToPoint(target: Point): Promise<void> {
     const path = this.computeRoute(target);
+    if (path.length === 0) {
+      console.error(`Could not compute a route from (${this.mapObject.x},${this.mapObject.y}) to (${target.x},${target.y})`)
+    }
     return this.animateMovement(path, undefined);
   }
 
@@ -107,30 +122,38 @@ export class Mewmba {
     return new PF.Grid(passGrid);
   }
 
-  private moveTowardsPoint(target: Point): boolean {
+
+  public moveTowardsPoint(target: Point): boolean {
     const roomba = this.mapObject;
-    const objectUpdates: { [key: number]: WireObject } = {};
 
     // Move 1 step
-    const speed = 2.0; // pixels per step
-    const pixelSize = 32.0;
-    const dx = target.x - (roomba.x + roomba.offsetX! / pixelSize);
-    const dy = target.y - (roomba.y + roomba.offsetY! / pixelSize);
+    const dx = target.x - (roomba.x + roomba.offsetX! / PIXEL_SIZE);
+    const dy = target.y - (roomba.y + roomba.offsetY! / PIXEL_SIZE);
 
-    if (Math.abs(dx) <= 1.0 / pixelSize && Math.abs(dy) <= 1.0 / pixelSize)
+    if (Math.abs(dx) <= 1.0 / PIXEL_SIZE && Math.abs(dy) <= 1.0 / PIXEL_SIZE)
       return false;
 
     const theta = Math.atan2(dy, dx);
     // Compute speed adjusted step
-    const stepX = (speed / pixelSize) * Math.cos(theta);
-    const stepY = (speed / pixelSize) * Math.sin(theta);
-    const newX = Math.abs(roomba.x + roomba.offsetX! / pixelSize + stepX);
-    const newY = Math.abs(roomba.y + roomba.offsetY! / pixelSize + stepY);
+    const stepX = (this.speed / PIXEL_SIZE) * Math.cos(theta);
+    const stepY = (this.speed / PIXEL_SIZE) * Math.sin(theta);
+    const newX = Math.abs(roomba.x + roomba.offsetX! / PIXEL_SIZE + stepX);
+    const newY = Math.abs(roomba.y + roomba.offsetY! / PIXEL_SIZE + stepY);
 
     const baseX = Math.floor(newX);
     const baseY = Math.floor(newY);
-    const fracX = Math.floor(pixelSize * (newX - baseX));
-    const fracY = Math.floor(pixelSize * (newY - baseY));
+    const fracX = Math.floor(PIXEL_SIZE * (newX - baseX));
+    const fracY = Math.floor(PIXEL_SIZE * (newY - baseY));
+    this.moveToPoint(baseX, baseY, fracX, fracY);
+
+    return true;
+  }
+
+  /**
+   * Moves this mewmba to the target point.
+   */
+  public moveToPoint(baseX: number, baseY: number, fracX: number, fracY: number): void {
+    const objectUpdates: { [key: number]: WireObject } = {};
     objectUpdates[this.key] = {
       x: baseX,
       y: baseY,
@@ -148,16 +171,17 @@ export class Mewmba {
     this.logger(`Object updates=${objectUpdates}`);
     this.wrapper.game.engine!.sendAction({
       $case: "mapSetObjects",
-      mapSetObjects: { mapId: gatherMapId(), objects: objectUpdates },
+      mapSetObjects: {mapId: gatherMapId(), objects: objectUpdates},
     });
-
-    return true;
   }
 
   private async animateMovement(
     path: number[][],
     onstepCallback?: OnStepCallback | undefined
   ): Promise<void> {
+    if (path.length === 0) {
+      throw new Error("Invalid path")
+    }
     // Trigger the animation to it
     if (path.length === 1) {
       return;

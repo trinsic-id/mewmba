@@ -24,6 +24,8 @@ const options = commandLineArgs(optionsDefinition);
 GatherWrapper.createInstance().then(async (value: GatherWrapper) => {
   const myWrapper = value;
 
+  await myWrapper.unfreezeMewmbas();
+
   if (options.player === "***RANDOM***") {
     options.player = myWrapper.getRandomPlayer();
   }
@@ -54,27 +56,6 @@ GatherWrapper.createInstance().then(async (value: GatherWrapper) => {
     await m;
   }
 
-  myWrapper.disconnect();
+  await myWrapper.disconnect();
   return;
 });
-
-// subscribeToMapSetObjects();
-// wrapper.subscribeToEvent("playerChats", (data, context) => {
-//     console.log(data, context)
-// })
-// wrapper.subscribeToEvent("playerInteracts", (data, context) => {
-//     console.log(data, context)
-// })
-
-// setRickRollTrap("Chiara")
-
-// mewmbaHarassTheIntern("phillis", "phillis")
-
-// uncomment this line to test issuance!
-// runGuestBadgeIssuerAndVerifier();
-
-// printCoffeeCupImage(48, 7, `Hi ${"Chiara"}`)
-
-// mewmbaSetUpDanceParty("phillis", "phillis")
-
-// mewmbaCleanupCoffee("4113", "phillis")
