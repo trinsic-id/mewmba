@@ -163,6 +163,7 @@ export class SlackIntegration {
         if (event.text.indexOf(ticketCommand) > 0) {
           await this.ticketThis(event, say);
         }
+        // TODO - Add a help message
       } catch (error) {
         console.error(error);
       }
