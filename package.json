@@ -29,7 +29,7 @@
   "homepage": "https://github.com/trinsic-id/mewmba#readme",
   "dependencies": {
     "@gathertown/gather-game-client": "38.0.1",
-    "@octokit/request": "6.2.2",
+    "@octokit/request": "6.2.3",
     "@slack/bolt": "3.12.2",
     "@trinsic/trinsic": "1.8.0",
     "command-line-args": "5.2.1",
