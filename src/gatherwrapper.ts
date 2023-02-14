@@ -39,8 +39,8 @@ export class GatherWrapper {
       Promise.resolve({ apiKey: gatherApiKey() })
     );
     game.subscribeToConnection((connected) => {
-        console.log(`Connected=${connected}`)
-      });
+      console.log(`Connected=${connected}`);
+    });
 
     // https://stackoverflow.com/questions/69169492/async-external-function-leaves-open-handles-jest-supertest-express
     await process.nextTick(() => {});
@@ -94,11 +94,11 @@ export class GatherWrapper {
   async unfreezeMewmbas(): Promise<void> {
     // For some reason, the mewmbas can get stuck on (0, 0). Move them to (7,7)
     // TODO - Identify an open location
-    const respawnPoint: Point = {x: 7, y: 7};
+    const respawnPoint: Point = { x: 7, y: 7 };
     for (const mewmbaObject of this.listMewmbas()) {
       const mewmba = new Mewmba(this, mewmbaObject.obj, mewmbaObject.key);
       if (mewmba.isStuck()) {
-        mewmba.moveToPoint(respawnPoint.x, respawnPoint.y, 0, 0)
+        mewmba.moveToPoint(respawnPoint.x, respawnPoint.y, 0, 0);
       }
     }
   }

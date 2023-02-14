@@ -7,7 +7,6 @@ import { debuglog } from "util";
 
 type OnStepCallback = () => number[][];
 
-
 const DEFAULT_SPEED = 2.0; // pixels per step
 const PIXEL_SIZE = 32.0; // pixels per tile
 
@@ -17,18 +16,21 @@ export class Mewmba {
   key: number;
   logger = debuglog("mewmba");
 
-  speed: number
+  speed: number;
 
   constructor(game: GatherWrapper, obj: MapObject, key: number) {
     this.wrapper = game;
     this.mapObject = obj;
     this.key = key;
     // TODO - Allow the mewmbas to run at different speeds?
-    this.speed = DEFAULT_SPEED
+    this.speed = DEFAULT_SPEED;
   }
 
   isStuck(): boolean {
-    return !this.downloadGrid().isWalkableAt(this.mapObject.x, this.mapObject.y);
+    return !this.downloadGrid().isWalkableAt(
+      this.mapObject.x,
+      this.mapObject.y
+    );
   }
 
   computeRoute(target: Point): number[][] {
@@ -82,7 +84,9 @@ export class Mewmba {
   async routeToPoint(target: Point): Promise<void> {
     const path = this.computeRoute(target);
     if (path.length === 0) {
-      console.error(`Could not compute a route from (${this.mapObject.x},${this.mapObject.y}) to (${target.x},${target.y})`)
+      console.error(
+        `Could not compute a route from (${this.mapObject.x},${this.mapObject.y}) to (${target.x},${target.y})`
+      );
     }
     return this.animateMovement(path, undefined);
   }
@@ -122,7 +126,6 @@ export class Mewmba {
     return new PF.Grid(passGrid);
   }
 
-
   public moveTowardsPoint(target: Point): boolean {
     const roomba = this.mapObject;
 
@@ -152,7 +155,12 @@ export class Mewmba {
   /**
    * Moves this mewmba to the target point.
    */
-  public moveToPoint(baseX: number, baseY: number, fracX: number, fracY: number): void {
+  public moveToPoint(
+    baseX: number,
+    baseY: number,
+    fracX: number,
+    fracY: number
+  ): void {
     const objectUpdates: { [key: number]: WireObject } = {};
     objectUpdates[this.key] = {
       x: baseX,
@@ -171,7 +179,7 @@ export class Mewmba {
     this.logger(`Object updates=${objectUpdates}`);
     this.wrapper.game.engine!.sendAction({
       $case: "mapSetObjects",
-      mapSetObjects: {mapId: gatherMapId(), objects: objectUpdates},
+      mapSetObjects: { mapId: gatherMapId(), objects: objectUpdates },
     });
   }
 
@@ -180,7 +188,7 @@ export class Mewmba {
     onstepCallback?: OnStepCallback | undefined
   ): Promise<void> {
     if (path.length === 0) {
-      throw new Error("Invalid path")
+      throw new Error("Invalid path");
     }
     // Trigger the animation to it
     if (path.length === 1) {
