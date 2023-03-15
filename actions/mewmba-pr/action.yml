@@ -1,5 +1,5 @@
-name: "Copy Proto files"
-description: "Copy proto files from one repository to another"
+name: "Mewmba Create PR"
+description: "Commit changes to branch, create PR across repositories"
 
 inputs:
   apiGithubToken:
