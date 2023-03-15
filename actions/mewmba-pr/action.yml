@@ -47,10 +47,6 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Configure git credentials
-      uses: OleksiyRudenko/gha-git-credentials@v2
-      with:
-        token: ${{ inputs.apiGithubToken }}
     - name: Git Short SHA
       id: git-short-sha
       run: |
