@@ -50,20 +50,20 @@ runs:
     - name: Git Short SHA
       id: git-short-sha
       run: |
-        echo "shortsha=$(echo ${{ inputs.gitSha }} | cut -b 1-8)" >> $env:GITHUB_OUTPUT
-      shell: bash
+        echo "shortsha=$('${{ inputs.gitSha }}'.Substring(0,8))" >> $env:GITHUB_OUTPUT
+      shell: pwsh
     - name: Create branch, pr, etc names
       id: create-names
       run: |
         echo "newbranchname=mewmba/${{ inputs.githubBranch }}-${{ steps.git-short-sha.outputs.shortsha }}-generated-protos" >> $env:GITHUB_OUTPUT
         echo "oldbranchname=${{ inputs.githubBranch }}" >> $env:GITHUB_OUTPUT
-      shell: bash
+      shell: pwsh
     - name: Default PR title, body
       id: default-pr
       run: |
         echo "defaultprtitle=Generated from ${{ steps.create-names.outputs.oldbranchname }}-${{ steps.git-short-sha.outputs.shortsha }}" >> $env:GITHUB_OUTPUT
         echo "defaultprbody=:rocket: Generated from ${{ steps.create-names.outputs.oldbranchname }} at commit SHA ${{ inputs.gitSha }}" >> $env:GITHUB_OUTPUT
-      shell: bash
+      shell: pwsh
 
     - name: Commit changes
       uses: EndBug/add-and-commit@v9
