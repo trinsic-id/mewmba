@@ -1,0 +1,88 @@
+name: "Copy Proto files"
+description: "Copy proto files from one repository to another"
+
+inputs:
+  apiGithubToken:
+    description: 'Github Api token'
+    required: true
+  prTitle:
+    description: 'PR Title'
+    required: false
+    default: ''
+  prBody:
+    description: 'PR Description'
+    required: false
+    default: ''
+  gitSha:
+    # TODO - Figure out if this gets passed in
+    description: 'githua.sha'
+    required: true
+  githubHeadRef:
+    # TODO - Figure out if this gets passed in
+    description: 'github.head_ref'
+    required: true
+  githubRefName:
+    # TODO - Figure out if this gets passed in
+    description: 'github.ref_name'
+    required: true
+  githubRepository:
+    description: 'Target repository for this PR'
+    required: false
+    default: ''
+  githubWorkingDirectory:
+    description: 'Subfolder repository for this PR'
+    required: false
+    default: ''
+  
+outputs:
+  # TODO - Show more outputs as needed
+  prCreated:
+    description: 'Boolean of whether a PR was created'
+    value: ${{ steps.create-pr.outputs.pr_created }}
+  prNumber:
+    description: 'Number of the PR created'
+    value: ${{ steps.create-pr.outputs.pr_number }}
+  prUrl:
+    description: 'URL to PR review'
+    value: ${{ steps.create-pr.outputs.pr_url }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure git credentials
+      uses: OleksiyRudenko/gha-git-credentials@v2
+      with:
+        token: ${{ inputs.apiGithubToken }}
+    - name: Create branch, pr, etc names
+      id: create-names
+      run: |
+        echo "newbranchname=mewmba/${{ inputs.githubHeadRef || inputs.githubRefName }}-${{ inputs.gitSha }}-generated-protos" >> $env:GITHUB_OUTPUT
+        echo "oldbranchname=${{ inputs.githubHeadRef || inputs.githubRefName }}" >> $env:GITHUB_OUTPUT
+        echo "defaultprtitle=Generated from ${{ steps.create-names.outputs.oldbranchname }}-${{ inputs.gitSha }}" >> $env:GITHUB_OUTPUT
+        echo "defaultprbody=:rocket: Generated from ${{ steps.create-names.outputs.oldbranchname }} at commit SHA ${{ inputs.gitSha }}" >> $env:GITHUB_OUTPUT
+      shell: pwsh
+
+    - name: Commit changes
+      uses: EndBug/add-and-commit@v9
+      id: commit-changes
+      with:
+        author_name: Mewmba
+        author_email: mewmba@trinsic.id
+        message: 'Generated code from proto files on branch ${{ steps.create-names.outputs.oldbranchname }}, commit SHA ${{ inputs.gitSha }}'
+        new_branch: ${{ steps.create-names.outputs.newbranchname }}
+        push: '--force --set-upstream origin ${{ steps.create-names.outputs.newbranchname  }}'
+
+    # TODO - Can we switch to github API?
+    - name: pull-request
+      uses: commercetools/pull-request@add-workdir
+      id: create-pr
+      if: ${{ steps.commit_changes.outputs.committed == 'true' }}
+      with:
+        source_branch: ${{ steps.create-names.outputs.newbranchname }}
+        destination_branch: ${{ steps.create-names.outputs.oldbranchname }}
+        pr_title: ${{ inputs.prTitle || steps.create-names.defaultprtitle }}
+        pr_body: ${{ inputs.prBody || steps.create-names.defaultprbody }}
+        pr_allow_empty: false
+        github_token: ${{ inputs.apiGithubToken }}
+        working_directory: ${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}
+        repository: ${{ inputs.githubRepository }}
