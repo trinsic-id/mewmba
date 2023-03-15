@@ -74,7 +74,7 @@ runs:
         message: 'Generated code and changes from branch ${{ steps.create-names.outputs.oldbranchname }}, commit SHA ${{ steps.git-short-sha.outputs.shortsha }}'
         new_branch: ${{ steps.create-names.outputs.newbranchname }}
         push: '--force --set-upstream origin ${{ steps.create-names.outputs.newbranchname  }}'
-        cwd: ${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}
+        cwd: '${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}'
 
     # TODO - Can we switch to github API?
     - name: pull-request
