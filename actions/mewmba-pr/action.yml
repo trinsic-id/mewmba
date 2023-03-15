@@ -50,7 +50,7 @@ runs:
     - name: Git Short SHA
       id: git-short-sha
       run: |
-        echo "shortsha=$(git rev-parse --short ${{ inputs.gitSha }})" >> $env:GITHUB_OUTPUT
+        echo "shortsha=$(echo ${{ inputs.gitSha}} | cut -b 0-8)" >> $env:GITHUB_OUTPUT
       shell: pwsh
     - name: Create branch, pr, etc names
       id: create-names
