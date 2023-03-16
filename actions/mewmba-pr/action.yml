@@ -66,17 +66,25 @@ runs:
       shell: pwsh
 
     - name: Commit changes
-      uses: EndBug/add-and-commit@v9
+      uses: Andro999b/push@v1.3
       id: commit-changes
       with:
         author_name: Mewmba
         author_email: mewmba@trinsic.id
+        github_token: ${{ inputs.apiGithubToken }}
         message: 'Generated code and changes from branch ${{ steps.create-names.outputs.oldbranchname }}, commit SHA ${{ steps.git-short-sha.outputs.shortsha }}'
-        new_branch: ${{ steps.create-names.outputs.newbranchname }}
+        branch: ${{ steps.create-names.outputs.newbranchname }}
         push: '--force --set-upstream origin ${{ steps.create-names.outputs.newbranchname  }}'
-        cwd: '${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}'
+        directory: '${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}'
+        repository: ${{ inputs.githubRepository }}
 
     # TODO - Can we switch to github API?
+    - name: pull-request
+      run: |
+        gh pr create --head "${{ steps.create-names.outputs.newbranchname }}" --base "${{ steps.create-names.outputs.oldbranchname }}" --title "Generated Protos for ${{ github.head_ref }}" --body ":rocket: Generated protos for ${{ github.head_ref }}"
+      if: ${{ steps.commit_changes.outputs.committed == 'true' }}
+      env:
+        GH_TOKEN: ${{ inputs.apiGithubToken }}
     - name: pull-request
       uses: commercetools/pull-request@add-workdir
       id: create-pr
