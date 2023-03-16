@@ -18,6 +18,10 @@ inputs:
     description: 'githua.sha'
     required: false
     default: ${{ github.event.pull_request_head.sha || github.sha }}
+  githubAssignee:
+    description: 'Assignee for the created PRs'
+    required: false
+    default: 'mewmba'
   githubBranch:
     # TODO - Figure out if this gets passed in
     description: 'github.head_ref'
@@ -74,12 +78,9 @@ runs:
         github_token: ${{ inputs.apiGithubToken }}
         message: 'Generated code and changes from branch ${{ steps.create-names.outputs.oldbranchname }}, commit SHA ${{ steps.git-short-sha.outputs.shortsha }}'
         branch: ${{ steps.create-names.outputs.newbranchname }}
-        push: '--force --set-upstream origin ${{ steps.create-names.outputs.newbranchname  }}'
         directory: '${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}'
         repository: ${{ inputs.githubRepository }}
 
-    # TODO - Can we switch to github API?
-    # TODO - Assignee
     - name: pull-request
       run: |
         gh pr create --head "${{ steps.create-names.outputs.newbranchname }}" `
@@ -87,21 +88,9 @@ runs:
                      --title "${{ inputs.prTitle || steps.create-names.defaultprtitle }}" `
                      --body "${{ inputs.prBody || steps.create-names.defaultprbody }}" `
                      --repo "${{ inputs.githubRepository }}"
+                     --assignee "${{ inputs.githubAssignee }}"
       shell: pwsh
       working-directory: ${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}
       if: ${{ steps.commit_changes.outputs.committed == 'true' }}
       env:
         GH_TOKEN: ${{ inputs.apiGithubToken }}
-    - name: pull-request
-      uses: commercetools/pull-request@add-workdir
-      id: create-pr
-      if: ${{ steps.commit_changes.outputs.committed == 'true' }}
-      with:
-        source_branch: ${{ steps.create-names.outputs.newbranchname }}
-        destination_branch: ${{ steps.create-names.outputs.oldbranchname }}
-        pr_title: ${{ inputs.prTitle || steps.create-names.defaultprtitle }}
-        pr_body: ${{ inputs.prBody || steps.create-names.defaultprbody }}
-        pr_allow_empty: false
-        github_token: ${{ inputs.apiGithubToken }}
-        working_directory: ${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}
-        repository: ${{ inputs.githubRepository }}
