@@ -81,7 +81,8 @@ runs:
         directory: '${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}'
         repository: ${{ inputs.githubRepository }}
 
-    - name: pull-request
+    - name: Create Pull Request
+      id: pull-request
       run: |
         gh pr create --head "${{ steps.create-names.outputs.newbranchname }}" `
                      --base "${{ steps.create-names.outputs.oldbranchname }}" `
@@ -91,6 +92,5 @@ runs:
                      --assignee "${{ inputs.githubAssignee }}"
       shell: pwsh
       working-directory: ${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}
-      if: ${{ steps.commit_changes.outputs.committed == 'true' }}
       env:
         GH_TOKEN: ${{ inputs.apiGithubToken }}
