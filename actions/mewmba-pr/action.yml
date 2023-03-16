@@ -14,23 +14,21 @@ inputs:
     required: false
     default: ''
   gitSha:
-    # TODO - Figure out if this gets passed in
-    description: 'githua.sha'
+    description: 'github.sha'
     required: false
     default: ${{ github.event.pull_request_head.sha || github.sha }}
   githubAssignee:
     description: 'Assignee for the created PRs'
     required: false
-    default: 'mewmba'
+    default: ${{ github.actor }}
   githubBranch:
-    # TODO - Figure out if this gets passed in
     description: 'github.head_ref'
     required: false
     default: ${{ github.head_ref || github.ref_name }}
   githubRepository:
     description: 'Target repository for this PR'
     required: false
-    default: ''
+    default: ${{ github.repository }}
   githubWorkingDirectory:
     description: 'Subfolder repository for this PR'
     required: false
@@ -83,17 +81,15 @@ runs:
         force: true
 
     - name: Create Pull Request
-      id: pull-request
-      run: |
-        gh pr create --head "${{ steps.create-names.outputs.newbranchname }}" `
-                     --base "${{ steps.create-names.outputs.oldbranchname }}" `
-                     --title "${{ inputs.prTitle || steps.create-names.defaultprtitle }}" `
-                     --repo "${{ inputs.githubRepository }}" `
-                     --assignee "${{ inputs.githubAssignee }}" `
-                     --body @"
-        ${{ inputs.prBody || steps.create-names.defaultprbody }}
-        "@
-      shell: pwsh
-      working-directory: ${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}
-      env:
-        GH_TOKEN: ${{ inputs.apiGithubToken }}
+      id: create-pr
+      uses: commercetools/pull-request@add-workdir
+      with:
+        source_branch: ${{ steps.create-names.outputs.newbranchname }}
+        destination_branch: ${{ steps.create-names.outputs.oldbranchname }}
+        pr_title: ${{ inputs.prTitle || steps.create-names.defaultprtitle }}
+        pr_body: ${{ inputs.prBody || steps.create-names.defaultprbody }}
+        pr_reviewer: ${{ inputs.githubAssignee }}
+        pr_allow_empty: false
+        github_token: ${{ secrets.SDK_REPO_PUSH_TOKEN }}
+        working_directory: ${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}
+        repository: ${{ inputs.githubRepository }}
