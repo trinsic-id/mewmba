@@ -90,7 +90,8 @@ runs:
                      --title "${{ inputs.prTitle || steps.create-names.defaultprtitle }}" `
                      --repo "${{ inputs.githubRepository }}" `
                      --assignee "${{ inputs.githubAssignee }}" `
-                     --body @"${{ inputs.prBody || steps.create-names.defaultprbody }}
+                     --body @"
+        ${{ inputs.prBody || steps.create-names.defaultprbody }}
         "@
       shell: pwsh
       working-directory: ${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}
