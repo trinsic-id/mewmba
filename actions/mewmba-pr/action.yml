@@ -70,7 +70,7 @@ runs:
       shell: pwsh
 
     - name: Commit changes
-      uses: Andro999b/push@v1.3
+      uses: actions-js/push@master
       id: commit-changes
       with:
         author_name: Mewmba
@@ -80,6 +80,7 @@ runs:
         branch: ${{ steps.create-names.outputs.newbranchname }}
         directory: '${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}'
         repository: ${{ inputs.githubRepository }}
+        force: true
 
     - name: Create Pull Request
       id: pull-request
