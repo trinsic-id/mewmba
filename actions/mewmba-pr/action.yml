@@ -88,9 +88,10 @@ runs:
         gh pr create --head "${{ steps.create-names.outputs.newbranchname }}" `
                      --base "${{ steps.create-names.outputs.oldbranchname }}" `
                      --title "${{ inputs.prTitle || steps.create-names.defaultprtitle }}" `
-                     --body "${{ inputs.prBody || steps.create-names.defaultprbody }}" `
                      --repo "${{ inputs.githubRepository }}" `
-                     --assignee "${{ inputs.githubAssignee }}"
+                     --assignee "${{ inputs.githubAssignee }}" `
+                     --body @"${{ inputs.prBody || steps.create-names.defaultprbody }}
+        "@
       shell: pwsh
       working-directory: ${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}
       env:
