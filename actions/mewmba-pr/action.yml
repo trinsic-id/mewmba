@@ -90,6 +90,6 @@ runs:
         pr_body: ${{ inputs.prBody || steps.create-names.defaultprbody }}
         pr_reviewer: ${{ inputs.githubAssignee }}
         pr_allow_empty: false
-        github_token: ${{ secrets.SDK_REPO_PUSH_TOKEN }}
+        github_token: ${{ inputs.apiGithubToken }}
         working_directory: ${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}
         repository: ${{ inputs.githubRepository }}
