@@ -88,7 +88,7 @@ runs:
                      --body "${{ inputs.prBody || steps.create-names.defaultprbody }}" `
                      --repo "${{ inputs.githubRepository }}"
       shell: pwsh
-      working_directory: ${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}
+      working-directory: ${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}
       if: ${{ steps.commit_changes.outputs.committed == 'true' }}
       env:
         GH_TOKEN: ${{ inputs.apiGithubToken }}
