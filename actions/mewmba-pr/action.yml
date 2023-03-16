@@ -36,15 +36,15 @@ inputs:
   
 outputs:
   # TODO - Show more outputs as needed
-  prCreated:
-    description: 'Boolean of whether a PR was created'
-    value: ${{ steps.create-pr.outputs.pr_created }}
+  prOperation:
+    description: 'Operation on the pull request'
+    value: ${{ steps.create-pr.outputs.pull-request-operation }}
   prNumber:
     description: 'Number of the PR created'
-    value: ${{ steps.create-pr.outputs.pr_number }}
+    value: ${{ steps.create-pr.outputs.pull-request-number }}
   prUrl:
     description: 'URL to PR review'
-    value: ${{ steps.create-pr.outputs.pr_url }}
+    value: ${{ steps.create-pr.outputs.pull-request-url }}
 
 runs:
   using: "composite"
@@ -67,29 +67,18 @@ runs:
         echo "defaultprbody=:rocket: Generated from ${{ steps.create-names.outputs.oldbranchname }} at commit SHA ${{ inputs.gitSha }}" >> $env:GITHUB_OUTPUT
       shell: pwsh
 
-    - name: Commit changes
-      uses: actions-js/push@master
-      id: commit-changes
-      with:
-        author_name: Mewmba
-        author_email: mewmba@trinsic.id
-        github_token: ${{ inputs.apiGithubToken }}
-        message: 'Generated code and changes from branch ${{ steps.create-names.outputs.oldbranchname }}, commit SHA ${{ steps.git-short-sha.outputs.shortsha }}'
-        branch: ${{ steps.create-names.outputs.newbranchname }}
-        directory: '${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}'
-        repository: ${{ inputs.githubRepository }}
-        force: true
-
     - name: Create Pull Request
       id: create-pr
-      uses: commercetools/pull-request@add-workdir
+      uses: peter-evans/create-pull-request@v4
       with:
-        source_branch: ${{ steps.create-names.outputs.newbranchname }}
-        destination_branch: ${{ steps.create-names.outputs.oldbranchname }}
-        pr_title: ${{ inputs.prTitle || steps.create-names.defaultprtitle }}
-        pr_body: ${{ inputs.prBody || steps.create-names.defaultprbody }}
-        pr_reviewer: ${{ inputs.githubAssignee }}
-        pr_allow_empty: false
-        github_token: ${{ inputs.apiGithubToken }}
-        working_directory: ${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}
-        repository: ${{ inputs.githubRepository }}
+        token: ${{ inputs.apiGithubToken }}
+        path: ${{ inputs.githubWorkingDirectory }}
+        commit-message: 'Generated code and changes from branch ${{ steps.create-names.outputs.oldbranchname }}, commit SHA ${{ steps.git-short-sha.outputs.shortsha }}'
+        committer: Mewmba <mewmba@trinsic.id>
+        author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+        branch: ${{ steps.create-names.outputs.newbranchname }}
+        delete-branch: true
+        base: ${{ steps.create-names.outputs.oldbranchname }}
+        title: ${{ inputs.prTitle || steps.create-names.defaultprtitle }}
+        body: ${{ inputs.prBody || steps.create-names.defaultprbody }}
+        reviewers: ${{ inputs.githubAssignee }}
