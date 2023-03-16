@@ -79,12 +79,6 @@ runs:
         directory: '${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}'
         repository: ${{ inputs.githubRepository }}
         force: true
-        
-    - name: Fix ownership
-      run: |
-        git config --global --add safe.directory ${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}
-        git config --global --add safe.directory /github/workspace/${{ inputs.githubWorkingDirectory }}
-      shell: pwsh
 
     - name: Create Pull Request
       id: create-pr
