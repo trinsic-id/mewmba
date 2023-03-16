@@ -79,9 +79,16 @@ runs:
         repository: ${{ inputs.githubRepository }}
 
     # TODO - Can we switch to github API?
+    # TODO - Assignee
     - name: pull-request
       run: |
-        gh pr create --head "${{ steps.create-names.outputs.newbranchname }}" --base "${{ steps.create-names.outputs.oldbranchname }}" --title "Generated Protos for ${{ github.head_ref }}" --body ":rocket: Generated protos for ${{ github.head_ref }}"
+        gh pr create --head "${{ steps.create-names.outputs.newbranchname }}" `
+                     --base "${{ steps.create-names.outputs.oldbranchname }}" `
+                     --title "${{ inputs.prTitle || steps.create-names.defaultprtitle }}" `
+                     --body "${{ inputs.prBody || steps.create-names.defaultprbody }}" `
+                     --repo "${{ inputs.githubRepository }}"
+      shell: pwsh
+      working_directory: ${{ github.workspace }}/${{ inputs.githubWorkingDirectory }}
       if: ${{ steps.commit_changes.outputs.committed == 'true' }}
       env:
         GH_TOKEN: ${{ inputs.apiGithubToken }}
