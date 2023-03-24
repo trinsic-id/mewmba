@@ -88,6 +88,6 @@ runs:
         branch: ${{ steps.create-names.outputs.newbranchname }}
         delete-branch: true
         base: ${{ steps.create-names.outputs.oldbranchname }}
-        title: ${{ inputs.prTitle || steps.default-pr.output.commitprtitle || steps.default-pr.output.defaultprtitle }}
-        body: ${{ inputs.prBody || steps.default-pr.output.commitprbody || steps.default-pr.output.defaultprbody }}
+        title: ${{ inputs.prTitle || steps.default-pr.outputs.commitprtitle || steps.default-pr.outputs.defaultprtitle }}
+        body: ${{ inputs.prBody || steps.default-pr.outputs.commitprbody || steps.default-pr.outputs.defaultprbody }}
         reviewers: ${{ inputs.githubAssignee }}
