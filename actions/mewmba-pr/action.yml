@@ -74,7 +74,7 @@ runs:
         $gittitle = $gittitle.Substring(0,[math]::Min($gittitle.Length,64))
         echo "defaultprtitle=Generated from ${{ steps.create-names.outputs.oldbranchname }}-${{ steps.git-short-sha.outputs.shortsha }}" >> $env:GITHUB_OUTPUT
         echo "defaultprbody=:rocket: Generated from ${{ steps.create-names.outputs.oldbranchname }} at commit SHA ${{ inputs.gitSha }}" >> $env:GITHUB_OUTPUT
-        echo "commitprtitle=$($gitlines[0])" >> $env:GITHUB_OUTPUT
+        echo "commitprtitle=$($gittitle)" >> $env:GITHUB_OUTPUT
         echo "commitprbody=$gitcommit" >> $env:GITHUB_OUTPUT
       shell: pwsh
 
