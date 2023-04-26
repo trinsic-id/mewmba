@@ -93,3 +93,7 @@ runs:
         title: ${{ inputs.prTitle || steps.default-pr.outputs.commitprtitle || steps.default-pr.outputs.defaultprtitle }}
         body: ${{ inputs.prBody || steps.default-pr.outputs.commitprbody || steps.default-pr.outputs.defaultprbody }}
         reviewers: ${{ inputs.githubAssignee }}
+    - uses: peter-evans/enable-pull-request-automerge@v3
+      with:
+        token: ${{ inputs.apiGithubToken }}
+        pull-request-number: ${{ steps.create-pr.pull-request-number }}
