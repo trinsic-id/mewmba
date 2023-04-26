@@ -97,3 +97,4 @@ runs:
       with:
         token: ${{ inputs.apiGithubToken }}
         pull-request-number: ${{ steps.create-pr.pull-request-number }}
+        merge-method: squash
