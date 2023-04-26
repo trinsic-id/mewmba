@@ -1,14 +1,15 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { deflateSync } from "zlib";
-import { AccountService } from "@trinsic/trinsic";
+import {TrinsicService} from "@trinsic/trinsic";
 
 export function storeProfile(profile: string, filename: string) {
   writeFileSync(filename, profile);
 }
 
 export async function loadNewProfile(): Promise<string> {
-  const accountService = new AccountService();
-  return await accountService.signIn();
+  const trinsic = new TrinsicService();
+  const wallet = await trinsic.wallet().createWallet({});
+  return wallet.authToken ?? "";
 }
 
 export async function loadMewmbaProfile(): Promise<string> {
