@@ -1,4 +1,4 @@
-import { CredentialService, ServiceOptions } from "@trinsic/trinsic";
+import { CredentialService, TrinsicOptions } from "@trinsic/trinsic";
 import { inflateSync } from "zlib";
 import { loadMewmbaProfile } from "./common";
 import { debuglog } from "util";
@@ -23,7 +23,7 @@ export class GuestBadgeVerifier {
 
     const mewmba = await loadMewmbaProfile();
     const credentialService = new CredentialService(
-      ServiceOptions.fromPartial({ authToken: mewmba })
+        TrinsicOptions.fromPartial({ authToken: mewmba })
     );
 
     const isVerified = await credentialService.verifyProof({

@@ -3,7 +3,7 @@ import {
   CredentialService,
   InsertItemRequest,
   IssueFromTemplateRequest,
-  ServiceOptions,
+  TrinsicOptions,
   WalletService,
 } from "@trinsic/trinsic";
 import {
@@ -46,14 +46,14 @@ export class GuestBadgeIssuer {
 
     const mewmba = await loadMewmbaProfile();
     const credentialService = new CredentialService(
-      ServiceOptions.fromPartial({ authToken: mewmba })
+        TrinsicOptions.fromPartial({ authToken: mewmba })
     );
     const credential = (await credentialService.issueFromTemplate(req))
       .documentJson;
 
     const guest = await loadNewProfile();
     const walletService = new WalletService(
-      ServiceOptions.fromPartial({ authToken: guest })
+        TrinsicOptions.fromPartial({ authToken: guest })
     );
     const itemId = (
       await walletService.insertItem(
@@ -78,7 +78,7 @@ export class GuestBadgeIssuer {
     console.log("[issue] isVerified: " + isVerified);
 
     if (encode) {
-      return encodeProofDocument(proof);
+      return encodeProofDocument(proof ?? "");
     } else {
       return JSON.stringify(proof);
     }
