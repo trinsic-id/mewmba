@@ -30,7 +30,7 @@
   "dependencies": {
     "@gathertown/gather-game-client": "40.0.0",
     "@octokit/request": "6.2.3",
-    "@slack/bolt": "3.13.0",
+    "@slack/bolt": "3.13.2",
     "@trinsic/trinsic": "1.11.0",
     "command-line-args": "5.2.1",
     "isomorphic-ws": "5.0.0",
