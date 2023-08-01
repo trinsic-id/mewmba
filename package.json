@@ -31,7 +31,7 @@
     "@gathertown/gather-game-client": "40.0.0",
     "@octokit/request": "6.2.3",
     "@slack/bolt": "3.13.0",
-    "@trinsic/trinsic": "1.11.0",
+    "@trinsic/trinsic": "1.11.2",
     "command-line-args": "5.2.1",
     "isomorphic-ws": "5.0.0",
     "js-pixel-fonts": "1.6.0",
