@@ -1,0 +1,31 @@
+name: 'Set Version'
+description: 'Set environment variables based on latest version'
+inputs:
+  githubToken:
+    description: 'the github token to use to fetch latest version'
+    required: true
+    default: ''
+  overrideVersion:
+    description: 'the version to force instead - overrides the latest version'
+    required: false
+  overrideRepository:
+    description: 'the repository whose latest version is desired'
+    required: false
+    default: ''
+outputs:
+  packageVersion:
+    description: "the package version"
+    value: "${{ steps.fetchversion.outputs.packageVersion }}"
+  releaseVersion:
+    description: "the release name / version"
+    value: "${{ steps.fetchversion.outputs.releaseVersion }}"
+runs:
+  using: "composite"
+  steps:
+    - id: fetchversion
+      run: |
+        ${{ github.action_path }}/Set-Version.ps1 `
+          -Repo "${{ inputs.overrideRepository || github.repository }}" `
+          -GithubToken "${{ inputs.githubToken }}" `
+          -ManualVersion "${{ inputs.overrideVersion }}"
+      shell: pwsh
